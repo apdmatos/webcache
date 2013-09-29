@@ -1,0 +1,11 @@
+{
+  "name": "Webpages downloader",
+  "description": "This node program will download webpages and their content, to be executed without website dependencies",
+  "author": "André Matos <apdmatos@gmail.com>",
+  "dependencies": {
+    "node-phantom": "0.2.x"
+  },
+  "devDependencies": {
+  },
+  "engine": "node >= 0.4.1"
+}
