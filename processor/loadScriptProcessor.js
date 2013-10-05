@@ -1,7 +1,7 @@
 
 
 
-var JQUERY_SCRIPT_LOCATION = "http://codeorigin.jquery.com/jquery-1.8.0.min.js";
+var JQUERY_SCRIPT_LOCATION = "http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js";
 
 var utils = require('./../util');
 
@@ -36,15 +36,18 @@ utils.extend(loadScriptProcessor.prototype, {
                 console.log('including jquery...');
 
                 // load jquery in the page
-                page.injectJs(JQUERY_SCRIPT_LOCATION, function(e) {
+                page.includeJs(JQUERY_SCRIPT_LOCATION, function(e) {
 
                     callback();
 
                 });
-            }
+            } else {
 
-            console.log('jquery already included on the webpage...');
-            callback();
+                console.log('jquery already included on the webpage...');
+                callback(); 
+
+            }
+            
         });
 
         return state;

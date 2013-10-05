@@ -1,48 +1,34 @@
 
+var util    = require('util'),
+    events  = require('events'),
+    utils   = require('../util');
+
 
 /**
  * object that contains all the selectors to be applied to each loaded page
  * @param obj [Array{Object}]
  */
-function WebSiteSelectorConfiguration(obj) {
+function WebSiteSelectorConfiguration(config) {
 
 
-    var selectors = obj;
-    for(var i = 1, len = arguments.length; i < len; ++i)
-        selectors = selectors.concat(arguments[i]);
-
-
-    this.selectors = selectors;
-    this.index = 0;
+    this.config = config;
 
 }
 
 
-WebSiteSelectorConfiguration.prototype = {
+util.inherits(WebSiteSelectorConfiguration, events.EventEmitter);
 
-    /**
-     * Returns the next css selector
-     * @returns {String} the css selector on the page
-     */
-    getNext: function() {
-        return this.selectors[this.index++]
+utils.extend(WebSiteSelectorConfiguration.prototype, {
+
+    getConfiguration: function() {
+        return this.config;
     },
 
-    /**
-     * Checks if there is more selectors to be applied
-     * @returns {boolean}
-     */
-    hasNext: function() {
-        return this.index < this.selectors.length;
-    },
-
-    /**
-     * Resets the enumaration
-     */
-    reset: function() {
-        this.index = 0;
+    setConfiguration: function(config) {
+        this.config = config;
+        this.emit('set:config', config);
     }
-}
+});
 
 
 module.exports = WebSiteSelectorConfiguration;

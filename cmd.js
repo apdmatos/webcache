@@ -9,6 +9,7 @@ var store = require('./store/filestore');
 // processors
 var loadScriptProcessor = require('./processor/loadScriptProcessor');
 var previewProcessor = require('./processor/previewProcessor');
+var absoluteUriProcessor = require('./processor/absoluteUriProcessor');
 var htmlDownloaderProcessor = require('./processor/htmlDownloaderProcessor');
 
 
@@ -25,9 +26,15 @@ var store = new store(config);
 
 var processor = new loadScriptProcessor(
     new previewProcessor(
-        new htmlDownloaderProcessor(null, store),
-        store
-    ), store);
+    	new absoluteUriProcessor(
+	        new htmlDownloaderProcessor(null, store),
+	        store
+	    ),
+	    store
+    ), 
+store);
+
+
 var eng = new engine(processor);
 
 var requests = 0;

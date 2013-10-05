@@ -10,7 +10,7 @@ var config = {
                 '\b.*.jpg\b', '\b.*.jpeg\b', '\b.*.png\b', '\b.*.gif\b'
             ]
         },
-        absolutePath: ['a'],
+        absolutePath: ['a'/*, 'img', 'script', 'link', 'style'*/],
         crawl: null
     },
 

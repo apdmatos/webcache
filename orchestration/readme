@@ -1,0 +1,9 @@
+
+
+TODO:
+
+Here should be the orchestration processors, for synchronization
+
+
+ - These n processors should execute on parallel
+ - Synchronized the result of these processors and then execute this

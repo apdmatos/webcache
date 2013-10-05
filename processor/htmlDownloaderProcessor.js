@@ -27,7 +27,7 @@ utils.extend(htmlDownloaderProcessor.prototype, {
         page.evaluate(function () {
             return document.getElementsByTagName('html')[0].innerHTML;
         }, function(err, html){
-            console.log(html);
+            console.log('saving html...');
             self.store.saveHtmlPage(html, state.storedata, callback);
         });
 

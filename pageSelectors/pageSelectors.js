@@ -2,7 +2,7 @@
 var urlModule = require('url');
 var pagesConfig = require('./selectorsConfiguration');
 var selector = require('./WebSiteSelectorConfiguration');
-
+var utils = require('../util');
 
 module.exports = {
 
@@ -15,11 +15,13 @@ module.exports = {
 
         var hostname = urlModule.parse(url).hostname;
 
-        var hostnameSelectors = pagesConfig[hostname];
-        var applyToAll = pagesConfig.all;
+        var hostnameSelectors = pagesConfig[hostname] || {};
+        var applyToAll = pagesConfig.all || {};
+
+        var config = utils.extend(hostnameSelectors, applyToAll);
 
         // selector enumerator
-        return new selectorEnumerable(applyToAll, configuration);
+        return new selector(config);
     }
 
 };

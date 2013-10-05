@@ -21,8 +21,14 @@ engine.prototype = {
     load: function(url, callback) {
 
         var self = this;
-        this.loadHtmlFile(url, function(page) {
-            self.processor.process(url, this, page, null, callback);
+        this.loadHtmlFile(url, function(page, ph) {
+            
+            var end = function() {
+                ph.exit();
+                callback();
+            }
+
+            self.processor.process(url, this, page, null, end);
         })
     },
 
@@ -61,7 +67,7 @@ engine.prototype = {
                 page.open(url, function(err,status) {
 
                     console.log("opened site? ", status);
-                    callback(page);
+                    callback(page, ph);
                 });
             });
         });
