@@ -2,9 +2,6 @@
 
 
 // TODO: this should be on a different repository to be reusable by another projects
-
-
-
 var formatters = {
 
 	string: function(param) {

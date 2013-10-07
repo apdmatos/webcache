@@ -10,6 +10,11 @@ var store = require('./store/filestore');
 var loadScriptProcessor = require('./processor/loadScriptProcessor');
 var previewProcessor = require('./processor/previewProcessor');
 var absoluteUriProcessor = require('./processor/absoluteUriProcessor');
+var imgProcessor = require('./processor/imgProcessor');
+var cssProcessor = require('./processor/cssProcessor');
+var jsProcessor = require('./processor/jsProcessor');
+var regexProcessor = require('./processor/regexProcessor');
+var htmlCrawlProcessor = require('./processor/htmlCrawlProcessor');
 var htmlDownloaderProcessor = require('./processor/htmlDownloaderProcessor');
 
 
@@ -24,10 +29,26 @@ var urls = [
 
 var store = new store(config);
 
+
 var processor = new loadScriptProcessor(
     new previewProcessor(
     	new absoluteUriProcessor(
-	        new htmlDownloaderProcessor(null, store),
+            new imgProcessor(
+                new cssProcessor(
+                    new jsProcessor(
+                        new regexProcessor(
+                            new htmlCrawlProcessor(
+                                new htmlDownloaderProcessor(null, store),
+                                store
+                            ),
+                            store
+                        ),
+                        store
+                    ),
+                    store
+                ),
+                store
+            ),
 	        store
 	    ),
 	    store

@@ -22,6 +22,7 @@ util.inherits(absoluteUriProcessor, processor);
 utils.extend(absoluteUriProcessor.prototype, {
 
     process: function(url, engine, page, state, done) {
+        console.log('absolute uri processor...');
 
         // base.process
         var self = this;
@@ -64,6 +65,11 @@ utils.extend(absoluteUriProcessor.prototype, {
 
 
 });
+
+
+/////////////
+// TODO: check if this code should be on this file... Can it be reusable?
+// remove function rel_to_abs function to a script that should be loaded by the browser
 
 
 

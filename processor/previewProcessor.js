@@ -17,6 +17,8 @@ utils.extend(previewProcessor.prototype, {
 
     process: function(url, engine, page, state, done) {
 
+        console.log('preview processor');
+
         var self = this;
         // base.process
         state = processor.prototype.process.apply(this, arguments);

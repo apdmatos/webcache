@@ -22,6 +22,8 @@ utils.extend(loadScriptProcessor.prototype, {
 
     process: function(url, engine, page, state, done) {
 
+        console.log('load script processor...');
+
         var self = this;
         // base.process
         state = processor.prototype.process.apply(this, arguments);
