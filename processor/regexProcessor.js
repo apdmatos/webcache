@@ -25,6 +25,8 @@ utils.extend(regexProcessor.prototype, {
 
         console.log('regex processor...');
         var self = this;
+        state = processor.prototype.process.apply(this, arguments);
+        
         self.next(url, engine, page, state, done);
     }
 

@@ -17,7 +17,7 @@ function cssProcessor() {
 }
 
 
-util.inherits(cssProcessor, processor);
+util.inherits(cssProcessor, elementDownloaderProcessor);
 
 utils.extend(cssProcessor.prototype, {
 
@@ -25,6 +25,8 @@ utils.extend(cssProcessor.prototype, {
 
         console.log('css processor...');
         var self = this;
+        state = processor.prototype.process.apply(this, arguments);
+        
         self.next(url, engine, page, state, done);
     }
 

@@ -25,6 +25,8 @@ utils.extend(htmlCrawlProcessor.prototype, {
 
         console.log('css processor...');
         var self = this;
+        state = processor.prototype.process.apply(this, arguments);
+        
         self.next(url, engine, page, state, done);
     }
 

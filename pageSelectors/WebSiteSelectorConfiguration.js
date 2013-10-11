@@ -27,6 +27,23 @@ utils.extend(WebSiteSelectorConfiguration.prototype, {
     setConfiguration: function(config) {
         this.config = config;
         this.emit('set:config', config);
+    },
+
+    downloadElement: function(elementName) {
+        var htmlElements; 
+        if (this.config.download && htmlElements = this.config.download.htmlElements) {
+
+            var elem;
+            for(var i = 0, len = htmlElements.length; i < len; ++i) {
+                elem = htmlElements[i];
+                
+                if(elem === elementName) return true;
+            }
+
+
+        }
+
+        return false;
     }
 });
 
