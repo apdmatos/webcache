@@ -76,14 +76,37 @@ utils.extend(elementDownloaderProcessor.prototype, {
     	}
     },
 
+    // private method to download a specific asset file
+    // param urlStruct {UrlStruct}
+    // param engine {Engine}
+    // param downloadCompleted {Function(err, url)}
+    downloadAsset: function(baseUrl, urlStruct, engine, state, downloaCompletedFunc) { 
+		var self = this;
+    	engine.getAssetFile(baseUrl, urlStruct.url, 
+    		function(data) { // success callback
+
+    			// TODO: run pre processors
+
+    			// save file to disk
+    			self.saveFile(data, state, function(err) {
+    				downloaCompletedFunc(err, urlStruct.url);	
+    			})
+    		}, 
+    		function(error) {
+    			// error callback
+    			downloaCompletedFunc(error, urlStruct.url);	
+    		}
+    	);
+    },
+
     // Abstract method that should be defined by each specific class
     getRelativePath: function() { /* must be defined on a subclass */ },
 
     // Abstract method that should be defined by each specific class
-    // param urlStruct {UrlStruct}
-    // param engine {Engine}
-    // param downloadCompleted {Function(err, url)}
-    downloadAsset: function(baseUrl, urlStruct, engine, state, downloaCompletedFunc) { /* must be defined on a subclass */ }
+    // param data {Buffer} data downloaded from the internet
+    // param state {ProcessorData}
+    // param doneFunc {Function(err)}
+    saveFile: function(data, state, doneFunc) { /* must be defined on a subclass */ }
 });
 
 

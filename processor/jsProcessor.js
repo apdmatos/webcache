@@ -35,33 +35,12 @@ utils.extend(jsProcessor.prototype, {
     },
 
     // Abstract method that should be defined by each specific class
-    // param baseUrl {String} the base url
-    // param urlStruct {UrlStruct}
-    // param engine {Engine}
-    // param state {processorData}
-    // param downloadCompleted {Function(err, url)}
-    downloadAsset: function(baseUrl, urlStruct, engine, state, downloaCompletedFunc) { 
-
-    	var self = this;
-    	engine.getAssetFile(baseUrl, urlStruct.url, 
-    		function(data) { // success callback
-
-    			// TODO: run regex processor
-    			
-    			// save file to disk
-    			self.store.saveJs(data, state.storedata, function(err) {
-
-    				// callback the downloadCompletedFunction
-    				downloaCompletedFunc(err, urlStruct.url);	
-    			});
-    		}, 
-    		function(error) {
-    			// error callback
-    			downloaCompletedFunc(error, urlStruct.url);	
-    		}
-    	);
+    // param data {Buffer} data downloaded from the internet
+    // param state {ProcessorData}
+    // param doneFunc {Function(err)}
+    saveFile: function(data, state, doneFunc) { 
+    	this.store.saveJs(data, state.storedata, doneFunc);
     }
-
 
 
 });
