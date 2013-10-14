@@ -28,7 +28,7 @@ engine.prototype = {
                 callback();
             }
 
-            self.processor.process(url, this, page, null, end);
+            self.processor.process(url, self, page, null, end);
         })
     },
 
@@ -39,7 +39,7 @@ engine.prototype = {
 
             console.log("statuscode: ", res.statusCode);
 
-            var contentType = res.header['content-type'];
+            var contentType = res.headers['content-type'];
             res.on('data', function(data) {
                 // response is here... handle it
                 callback(data);

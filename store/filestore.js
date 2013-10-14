@@ -93,8 +93,6 @@ var privateFuncs = {
             done(storedata.dirPath);
         }
     }
-
-
 };
 
 

@@ -11,7 +11,7 @@ var processor = require('./processor');
 var urlMod = require('url');
 var util = require('util');
 var utils = require('./../util');
-var phantomFunc = require('../node-phantom-extensions/parameterFunction')
+var phantomFunc = require('../node-phantom-extensions/parameterFunction');
 
 
 
@@ -27,18 +27,13 @@ util.inherits(elementDownloaderProcessor, processor);
 
 utils.extend(elementDownloaderProcessor.prototype, {
 
-    process: function(url, engine, page, state, done) {
-        console.log('element downloader processor...');
-        return processor.prototype.process.apply(this, arguments);
-    },
-
     // protected method that is called from each specific class
     processElement: function(url, engine, page, state, elemName, elemUrlAttr) {
 
     	var self = this;
     	var relPath = this.getRelativePath();
     	page.evaluate(
-    		phantomFunc(processTagElements, [elemName, elemUrlAttr, relPath]),
+    		phantomFunc(processPageElementsOnBrowser, [elemName, elemUrlAttr, relPath]),
 	        function(err, res) {
 	            if(err) {
 	            	console.log('error changing urls to download... ', err);
@@ -47,6 +42,7 @@ utils.extend(elementDownloaderProcessor.prototype, {
 	            	self.next(url, engine, page, state, done);
 	            }
 	            else {
+                    
 	            	console.log('processed ' + res.length + ' results');
 	            	self.downloadFiles(url, res, engine, state, function() {  
 	            		self.next(url, engine, page, state, done);
@@ -63,13 +59,13 @@ utils.extend(elementDownloaderProcessor.prototype, {
 
         var downloads = 0;
 
-	    function downloaCompleted(err, url) {
+	    function downloadCompleted(err, url) {
 	    	if(err) console.log('download ' + url + ' completed with errors...', err);
 	    	else console.log('download ' + url + ' completed with success!');
 			if(--downloads == 0) done();
 	    }
 
-    	for (var i = 0, len = urls.length; i < 0; ++i) {
+    	for (var i = 0, len = urls.length; i < len; ++i) {
     		++ downloads;
     		var struct = urls[i];
     		this.downloadAsset(baseUrl, struct, engine, state, downloadCompleted);
@@ -129,7 +125,7 @@ function processPageElementsOnBrowser(elementName, elemUrlAttr, localPath) {
 
         return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
                 s4() + '-' + s4() + s4() + s4();
-    },
+    }
 
 	function generateName(url) {
 		
@@ -137,7 +133,7 @@ function processPageElementsOnBrowser(elementName, elemUrlAttr, localPath) {
 		var urlParts = url.split('/'),
 			fileName = urlParts[urlParts.length - 1];
 
-		return newGuid() + fileName();
+		return newGuid() + fileName;
 	}
 
 	function generateUrl(path, name) {

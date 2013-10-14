@@ -5,18 +5,18 @@ var JQUERY_SCRIPT_LOCATION = "http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/
 
 var utils = require('./../util');
 
-var processor = require('./processor');
+var baseProcessor = require('./processor');
 var util = require('util');
 var utils = require('./../util');
 
 
 function loadScriptProcessor() {
     // call base constructor
-    processor.apply(this, arguments);
+    baseProcessor.apply(this, arguments);
 
 };
 
-util.inherits(loadScriptProcessor, processor);
+util.inherits(loadScriptProcessor, baseProcessor);
 
 utils.extend(loadScriptProcessor.prototype, {
 
@@ -26,7 +26,7 @@ utils.extend(loadScriptProcessor.prototype, {
 
         var self = this;
         // base.process
-        state = processor.prototype.process.apply(this, arguments);
+        state = baseProcessor.prototype.process.apply(this, arguments);
 
         var callback = utils.callbackWrapper(this.next, this, [url, engine, page, state, done]);
         page.evaluate(function () {

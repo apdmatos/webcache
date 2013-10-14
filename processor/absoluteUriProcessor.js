@@ -1,7 +1,7 @@
 
 
 // Processor dependencies
-var processor = require('./processor');
+var baseProcessor = require('./processor');
 var util = require('util');
 var utils = require('./../util');
 var phantomFunc = require('../node-phantom-extensions/parameterFunction')
@@ -11,12 +11,12 @@ var phantomFunc = require('../node-phantom-extensions/parameterFunction')
 // processor constructor
 function absoluteUriProcessor() {
     // call base constructor
-    processor.apply(this, arguments);
+    baseProcessor.apply(this, arguments);
 
 }
 
 
-util.inherits(absoluteUriProcessor, processor);
+util.inherits(absoluteUriProcessor, baseProcessor);
 
 utils.extend(absoluteUriProcessor.prototype, {
 
@@ -25,7 +25,7 @@ utils.extend(absoluteUriProcessor.prototype, {
 
         // base.process
         var self = this;
-        state = processor.prototype.process.apply(this, arguments);
+        state = baseProcessor.prototype.process.apply(this, arguments);
 
         function processElements (config) {
 
