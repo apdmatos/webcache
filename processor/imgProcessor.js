@@ -30,7 +30,7 @@ utils.extend(imgProcessor.prototype, {
 
         console.log('img processor...');
         state = baseProcessor.prototype.process.apply(this, arguments);
-        this.processElement(url, engine, page, state, 'img', 'src');
+        this.processElement(url, engine, page, state, 'img', 'src', done);
     },
 
     // Abstract method that should be defined by each specific class
@@ -41,9 +41,10 @@ utils.extend(imgProcessor.prototype, {
     // Abstract method that should be defined by each specific class
     // param data {Buffer} data downloaded from the internet
     // param state {ProcessorData}
+    // param urlStruct {UrlStruct} containing the file name and the file path
     // param doneFunc {Function(err)}
-    saveFile: function(data, state, doneFunc) { 
-    	this.store.saveImage(data, state.storedata, doneFunc);
+    saveFile: function(data, state, urlStruct, doneFunc) { 
+    	this.store.saveImage(data, state.storedata, urlStruct.name, doneFunc);
     }
 
 

@@ -26,7 +26,7 @@ utils.extend(jsProcessor.prototype, {
 
         console.log('js processor...');
         state = baseProcessor.prototype.process.apply(this, arguments);
-        this.processElement(url, engine, page, state, 'script', 'src');
+        this.processElement(url, engine, page, state, 'script', 'src', done);
     },
 
     // Abstract method that should be defined by each specific class
@@ -37,9 +37,10 @@ utils.extend(jsProcessor.prototype, {
     // Abstract method that should be defined by each specific class
     // param data {Buffer} data downloaded from the internet
     // param state {ProcessorData}
+    // param urlStruct {UrlStruct} containing the file name and the file path
     // param doneFunc {Function(err)}
-    saveFile: function(data, state, doneFunc) { 
-    	this.store.saveJs(data, state.storedata, doneFunc);
+    saveFile: function(data, state, urlStruct, doneFunc) { 
+    	this.store.saveJs(data, state.storedata, urlStruct.name, doneFunc);
     }
 
 

@@ -16,23 +16,58 @@ filestore.prototype = {
 
     saveWebsitePreview: function(buffer, storedata, done) {
         console.log(storedata.toString());
-        privateFuncs.saveFile(this.config, storedata, this.config.previewWebsiteFile, buffer, done);
+        privateFuncs.saveFile(
+            this.config,
+            storedata, 
+            null, 
+            this.config.previewWebsiteFile, 
+            buffer, 
+            done
+        );
     },
 
     saveHtmlPage: function(html, storedata, done) {
-        privateFuncs.saveFile(this.config, storedata, this.config.htmlFile, html, done);
+        privateFuncs.saveFile(
+            this.config, 
+            storedata, 
+            null, 
+            this.config.htmlFile, 
+            html, 
+            done
+        );
     },
 
-    saveImage: function(buffer, storedata, done) {
-
+    saveImage: function(buffer, storedata, filename, done) {
+        privateFuncs.saveFile(
+            this.config, 
+            storedata, 
+            this.getImagesRelativePath(), 
+            filename, 
+            buffer, 
+            done
+        );
     },
 
-    saveCss: function(buffer, storedata, done) {
-
+    saveCss: function(buffer, storedata, filename, done) {
+        privateFuncs.saveFile(
+            this.config, 
+            storedata, 
+            this.getCSSRelativePath(), 
+            filename, 
+            buffer, 
+            done
+        );
     },
 
-    saveJs: function(buffer, storedata, done) {
-
+    saveJs: function(buffer, storedata, filename, done) {
+        privateFuncs.saveFile(
+            this.config, 
+            storedata, 
+            this.getJSRelativePath(), 
+            filename, 
+            buffer, 
+            done
+        );
     },
 
     getImagesRelativePath: function() {
@@ -54,14 +89,21 @@ filestore.prototype = {
 // private functions
 var privateFuncs = {
 
-    saveFile: function(config, storedata, relPath, data, doneFunc) {
+    saveFile: function(config, storedata, containingFolderPath, fileName, data, doneFunc) {
 
         this.getDirectoryPath(config, storedata, function(dirPath) {
             // save image file
-            var filePath = path.join(dirPath, relPath);
+            containingFolderPath = containingFolderPath || '';
+            var containingDir = path.join(dirPath, containingFolderPath);
+            
+            // create a containing folder, if necessary (/css, /images and /js)
+            utils.createDirIfDoesNotExist(containingDir, function() {
+                
+                var filePath = path.join(containingDir, fileName);
+                console.log('storing file in ' + filePath);
+                fs.writeFile(filePath, data, 'utf8', doneFunc);
 
-            console.log('storing file in ' + filePath);
-            fs.writeFile(filePath, data, 'utf8', doneFunc);
+            });
         });
     },
 

@@ -28,22 +28,28 @@ util.inherits(elementDownloaderProcessor, processor);
 utils.extend(elementDownloaderProcessor.prototype, {
 
     // protected method that is called from each specific class
-    processElement: function(url, engine, page, state, elemName, elemUrlAttr) {
+    processElement: function(url, engine, page, state, elemName, elemUrlAttr, done) {
 
     	var self = this;
     	var relPath = this.getRelativePath();
     	page.evaluate(
     		phantomFunc(processPageElementsOnBrowser, [elemName, elemUrlAttr, relPath]),
 	        function(err, res) {
-	            if(err) {
-	            	console.log('error changing urls to download... ', err);
+
+                var elems = res && res.length ? res.length : 0;
+                console.log('processed ' + elems + ' results');
+
+	            if(err || !res || res.length == 0) {
+
+                    if(err) {
+                        console.log('error changing urls to download... ', err);
+                    }
 
 	            	// in case of an error call the next processor
 	            	self.next(url, engine, page, state, done);
 	            }
 	            else {
                     
-	            	console.log('processed ' + res.length + ' results');
 	            	self.downloadFiles(url, res, engine, state, function() {  
 	            		self.next(url, engine, page, state, done);
 	            	});
@@ -84,7 +90,7 @@ utils.extend(elementDownloaderProcessor.prototype, {
     			// TODO: run pre processors
 
     			// save file to disk
-    			self.saveFile(data, state, function(err) {
+    			self.saveFile(data, state, urlStruct, function(err) {
     				downloaCompletedFunc(err, urlStruct.url);	
     			})
     		}, 
@@ -101,8 +107,9 @@ utils.extend(elementDownloaderProcessor.prototype, {
     // Abstract method that should be defined by each specific class
     // param data {Buffer} data downloaded from the internet
     // param state {ProcessorData}
+    // param urlStruct {UrlStruct} containing the file name and the file path
     // param doneFunc {Function(err)}
-    saveFile: function(data, state, doneFunc) { /* must be defined on a subclass */ }
+    saveFile: function(data, state, urlStruct, doneFunc) { /* must be defined on a subclass */ }
 });
 
 
@@ -137,7 +144,7 @@ function processPageElementsOnBrowser(elementName, elemUrlAttr, localPath) {
 	}
 
 	function generateUrl(path, name) {
-		return path + name;
+		return path + '/' + name;
 	}
 
 	function urlStruct(url, name) {
@@ -151,9 +158,9 @@ function processPageElementsOnBrowser(elementName, elemUrlAttr, localPath) {
 
 		// get all elements with the "elementName" on the page
 		$(elementName).each(function() {
-			if(parsedUrls[url]) return;
-				
+			
 			var url = $(this).attr(elemUrlAttr);
+            if(parsedUrls[url] || !url) return;
 
 			// generate a name for this element to download
 			var name = generateName(url); 
