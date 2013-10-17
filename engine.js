@@ -40,8 +40,15 @@ engine.prototype = {
             console.log("statuscode: ", res.statusCode);
 
             var contentType = res.headers['content-type'];
-            res.on('data', function(data) {
-                // response is here... handle it
+
+            var data = '';
+            res.setEncoding('utf8');
+
+            res.on('data', function (chunk) {
+                data += chunk;
+            });
+
+            res.on('end', function() {
                 callback(data);
             });
 
