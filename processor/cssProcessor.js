@@ -25,7 +25,7 @@ utils.extend(cssProcessor.prototype, {
 
         console.log('css processor...');
         state = baseProcessor.prototype.process.apply(this, arguments);
-        this.processElement(url, engine, page, state, 'link', 'href', done);
+        this.processElement(url, engine, page, state, 'link', 'href', 'utf8', done);
     },
 
     // Abstract method that should be defined by each specific class

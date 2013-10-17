@@ -26,7 +26,7 @@ utils.extend(jsProcessor.prototype, {
 
         console.log('js processor...');
         state = baseProcessor.prototype.process.apply(this, arguments);
-        this.processElement(url, engine, page, state, 'script', 'src', done);
+        this.processElement(url, engine, page, state, 'script', 'src', 'utf8', done);
     },
 
     // Abstract method that should be defined by each specific class

@@ -22,6 +22,7 @@ filestore.prototype = {
             null, 
             this.config.previewWebsiteFile, 
             buffer, 
+            'binary',
             done
         );
     },
@@ -33,6 +34,7 @@ filestore.prototype = {
             null, 
             this.config.htmlFile, 
             html, 
+            'utf8',
             done
         );
     },
@@ -44,6 +46,7 @@ filestore.prototype = {
             this.getImagesRelativePath(), 
             filename, 
             buffer, 
+            'binary',
             done
         );
     },
@@ -55,6 +58,7 @@ filestore.prototype = {
             this.getCSSRelativePath(), 
             filename, 
             buffer, 
+            'utf8',
             done
         );
     },
@@ -66,6 +70,7 @@ filestore.prototype = {
             this.getJSRelativePath(), 
             filename, 
             buffer, 
+            'utf8',
             done
         );
     },
@@ -89,7 +94,7 @@ filestore.prototype = {
 // private functions
 var privateFuncs = {
 
-    saveFile: function(config, storedata, containingFolderPath, fileName, data, doneFunc) {
+    saveFile: function(config, storedata, containingFolderPath, fileName, data, format, doneFunc) {
 
         this.getDirectoryPath(config, storedata, function(dirPath) {
             // save image file
@@ -101,7 +106,7 @@ var privateFuncs = {
                 
                 var filePath = path.join(containingDir, fileName);
                 console.log('storing file in ' + filePath);
-                fs.writeFile(filePath, data, 'utf8', doneFunc);
+                fs.writeFile(filePath, data, format, doneFunc);
 
             });
         });

@@ -28,7 +28,7 @@ util.inherits(elementDownloaderProcessor, processor);
 utils.extend(elementDownloaderProcessor.prototype, {
 
     // protected method that is called from each specific class
-    processElement: function(url, engine, page, state, elemName, elemUrlAttr, done) {
+    processElement: function(url, engine, page, state, elemName, elemUrlAttr, format, done) {
 
     	var self = this;
     	var relPath = this.getRelativePath();
@@ -50,7 +50,7 @@ utils.extend(elementDownloaderProcessor.prototype, {
 	            }
 	            else {
                     
-	            	self.downloadFiles(url, res, engine, state, function() {  
+	            	self.downloadFiles(url, res, engine, state, format, function() {  
 	            		self.next(url, engine, page, state, done);
 	            	});
 	            }
@@ -61,7 +61,7 @@ utils.extend(elementDownloaderProcessor.prototype, {
     // param urls {UrlStruct[]}
     // param engine {Engine}
     // param downloadAssetFunc {Function(UrlStruct)}
-    downloadFiles: function(baseUrl, urls, engine, state, done) {
+    downloadFiles: function(baseUrl, urls, engine, state, format, done) {
 
         var downloads = 0;
 
@@ -74,7 +74,7 @@ utils.extend(elementDownloaderProcessor.prototype, {
     	for (var i = 0, len = urls.length; i < len; ++i) {
     		++ downloads;
     		var struct = urls[i];
-    		this.downloadAsset(baseUrl, struct, engine, state, downloadCompleted);
+    		this.downloadAsset(baseUrl, struct, engine, state, format, downloadCompleted);
     	}
     },
 
@@ -82,9 +82,9 @@ utils.extend(elementDownloaderProcessor.prototype, {
     // param urlStruct {UrlStruct}
     // param engine {Engine}
     // param downloadCompleted {Function(err, url)}
-    downloadAsset: function(baseUrl, urlStruct, engine, state, downloaCompletedFunc) { 
+    downloadAsset: function(baseUrl, urlStruct, engine, state, format, downloaCompletedFunc) { 
 		var self = this;
-    	engine.getAssetFile(baseUrl, urlStruct.url, 
+    	engine.getAssetFile(baseUrl, urlStruct.url, format,
     		function(data) { // success callback
 
     			// TODO: run pre processors

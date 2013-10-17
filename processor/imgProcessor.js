@@ -30,7 +30,7 @@ utils.extend(imgProcessor.prototype, {
 
         console.log('img processor...');
         state = baseProcessor.prototype.process.apply(this, arguments);
-        this.processElement(url, engine, page, state, 'img', 'src', done);
+        this.processElement(url, engine, page, state, 'img', 'src', 'binary', done);
     },
 
     // Abstract method that should be defined by each specific class

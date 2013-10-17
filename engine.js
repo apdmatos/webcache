@@ -33,10 +33,12 @@ engine.prototype = {
         })
     },
 
-    getAssetFile: function(baseUrl, relativeUrl, callback, errorCallback) {
+    getAssetFile: function(baseUrl, relativeUrl, format, callback, errorCallback) {
+
+        format = format || 'utf8';
 
         var url = urlMod.resolve(baseUrl, relativeUrl);
-        
+
         var protocol = url.indexOf("http://") == 0 ? http : https;
         var req = protocol.request(url, function(res) {
 
@@ -45,7 +47,7 @@ engine.prototype = {
             var contentType = res.headers['content-type'];
 
             var data = '';
-            res.setEncoding('utf8');
+            res.setEncoding(format);
 
             res.on('data', function (chunk) {
                 data += chunk;
@@ -55,7 +57,7 @@ engine.prototype = {
                 callback(data);
             });
 
-        })
+        });
 
         req.end();
 
