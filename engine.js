@@ -6,6 +6,7 @@ var phantom=require('node-phantom');
 var urlMod = require('url');
 //var utils = require('./util')
 var http = require('http');
+var https = require('https');
 
 
 function engine(processor) {
@@ -35,7 +36,9 @@ engine.prototype = {
     getAssetFile: function(baseUrl, relativeUrl, callback, errorCallback) {
 
         var url = urlMod.resolve(baseUrl, relativeUrl);
-        var req = http.request(url, function(res) {
+        
+        var protocol = url.indexOf("http://") == 0 ? http : https;
+        var req = protocol.request(url, function(res) {
 
             console.log("statuscode: ", res.statusCode);
 
