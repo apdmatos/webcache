@@ -23,7 +23,8 @@ var config = require('./config');
 
 
 var urls = [
-    "http://www.google.pt"
+    //"http://www.google.pt"
+    "http://pplware.sapo.pt/"
 ];
 
 
