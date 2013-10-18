@@ -147,8 +147,9 @@ function processPageElementsOnBrowser(elementName, elemUrlAttr, localPath) {
 		return path + '/' + name;
 	}
 
-	function urlStruct(url, name) {
+	function urlStruct(url, localUrl, name) {
 		this.url = url;
+        this.localUrl = localUrl;
 		this.name = name;
 	}
 
@@ -160,20 +161,33 @@ function processPageElementsOnBrowser(elementName, elemUrlAttr, localPath) {
 		$(elementName).each(function() {
 			
 			var url = $(this).attr(elemUrlAttr);
-            if(parsedUrls[url] || !url) return;
+            if(!url) return;
 
-			// generate a name for this element to download
-			var name = generateName(url); 
+            var newUrl;
 
-			// replace the URL on the document
-			var newUrl = generateUrl(localPath, name);
-			$(this).attr(elemUrlAttr, newUrl);
+            if(parsedUrls[url]) {
 
-			// create a urlStruct with the name
-			var struct = new urlStruct(url, name);
-			urls.push(struct);
+                // get the url to be setted on elements that reuse it
+                newUrl = parsedUrls[url].localUrl;
 
-			parsedUrls[url] = struct;
+            } else {
+
+                // generate a name for this element to download
+                var name = generateName(url);     
+
+                // replace the URL on the document
+                newUrl = generateUrl(localPath, name);
+
+                // create a urlStruct with the name
+                var struct = new urlStruct(url, newUrl, name);
+                urls.push(struct);
+
+                parsedUrls[url] = struct;
+
+            }
+
+            // replace the URL on the document
+            $(this).attr(elemUrlAttr, newUrl);
 		});
 
 		return urls;
