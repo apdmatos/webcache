@@ -10,9 +10,9 @@ var util = require('util');
 var utils = require('./../util');
 
 
-function loadScriptProcessor() {
+function loadScriptProcessor(nextProcessor, store) {
     // call base constructor
-    baseProcessor.apply(this, arguments);
+    baseProcessor.apply(this, [nextProcessor, store]);
 
 };
 

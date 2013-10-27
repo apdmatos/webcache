@@ -8,10 +8,14 @@ var utils = require('./../util');
 
 
 
-// processor constructor
-function jsProcessor() {
+/**
+ * @constructor
+ * Abstract class to download assets
+ * @param  {RegexPosProcessor} regexProcessor
+ */
+function jsProcessor(nextProcessor, store, regexProcessor) {
     // call base constructor
-    baseProcessor.apply(this, arguments);
+    baseProcessor.apply(this, [nextProcessor, store, regexProcessor]);
 
 }
 
@@ -25,13 +29,21 @@ utils.extend(jsProcessor.prototype, {
 
         console.log('js processor...');
         state = baseProcessor.prototype.process.apply(this, arguments);
-        this.processElement(url, engine, page, state, 'script', 'src', 'utf8', done);
+        this.processElement(url, engine, page, state, 'script', 'src', done);
     },
 
     // Abstract method that should be defined by each specific class
     getRelativePath: function() { 
     	return this.store.getJSRelativePath();
     },
+
+    /**
+     * returns the file encoding
+     * @return {String} the encoding
+     */
+    getEncoding: function() { 
+        return 'utf8';
+    }, 
 
     // Abstract method that should be defined by each specific class
     // param data {Buffer} data downloaded from the internet
@@ -48,7 +60,21 @@ utils.extend(jsProcessor.prototype, {
      * @param  {[ProcessorData]}    state
      * @return {Boolean} - returns true if it can process, false otherwise
      */
-    apply: function(url, state) {  }
+    apply: function(url, state) {  
+        return url.indexOf(".js") != -1;
+    },
+
+    /**
+     * Hook method to return posProcessor data
+     * @param  {ProcessorData} state   
+     * @param  {String} baseUrl 
+     * @param  {Engine} engine  
+     * @return {PosProcessorData}  The pos processor data to call posProcessor
+     */
+    getPosProcessorsData: function(state, baseUrl, engine) { 
+        // TODO: must be implemented...
+        return null;
+    }    
 
 });
 

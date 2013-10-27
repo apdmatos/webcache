@@ -2,7 +2,6 @@
 
 
 var basePosProcessor 	= require('./posProcessor'),
-	urlMod				= require('url'),
 	util 			 	= require('util'),
 	utils 				= require('./../util');
 
@@ -23,7 +22,7 @@ utils.extend(regexPosProcessor.prototype, {
 	 * Process data file
 	 * @param  {String}   file
 	 * @param  {RegexPosProcessorData}   posProcessorData
-	 * @param  {Function} done - to be called when done
+	 * @param  {Function(file)} done - to be called when done
 	 * @return {void}
 	 */
     process: function(file, posProcessorData, done) {
@@ -33,8 +32,11 @@ utils.extend(regexPosProcessor.prototype, {
     	var self = this;
     	var state = posProcessorData.processorState;
     	var regexps = posProcessorData.regexps;
-    	var waitFn = utils.comulatingCallbacks(done, this);
+    	var waitFn = utils.comulatingCallbacks(function() { done(file); }, this);
     	var waitForProcessor = false;
+
+    	// {url, urlStruct}
+    	var processedUrls = {};
 
     	function applyRegex(match, p1, p2, p3, offset, string) {
     		var url = p1.substring(1, p1.length);
@@ -45,36 +47,50 @@ utils.extend(regexPosProcessor.prototype, {
 				return match;
 			} 
 
-			waitForProcessor = true;
-			var fn = waitFn();
-			//var absoluteUrl = urlMod.resolve(posProcessorData.baseUrl, relUrl);
-			var name = self.generateName(relUrl);
-			var localUrl = posProcessorData.relUrl + '/' + name;
 
-			processor.downloadAsset(
-				posProcessorData.baseUrl, 
-				{
+			var localUrl;
+			if(processedUrls[url]) {
+				
+				localUrl = processedUrls[url].localUrl;
+
+			}else {
+
+				waitForProcessor = true;
+				var fn = waitFn();
+				
+				var name = self.generateName(url);
+				localUrl = posProcessorData.relPath + '/' + name;
+
+				processedUrls[url] = {
 					url: url, 
 					localUrl: localUrl,
 					name: name
-				},
-				posProcessorData.engine, 
-				state, 
-				posProcessorData.format, 
-				fn
-			);
+				};
 
+				processor.downloadAsset(
+					posProcessorData.baseUrl, 
+					processedUrls[url],
+					posProcessorData.engine, 
+					state, 
+					fn
+				);
+			}
+
+			
+			// TODO: HACK!!! will just work for CSS files
+			// Must be reviewed
     		return "url(" + localUrl;
     	}
 
-    	
+    	var regex;
 		for(var i = 0, len = regexps.length; i < len; ++i) {
-    		file = file.replace(regex, applyRegex);
+			regex = new RegExp(regexps[i]);
+    		file = file.replace(regex, applyRegex, "gi");
     	}	
     	
     	
     	if(!waitForProcessor) {
-    		done();
+    		done(file);
     	}
     	
     },

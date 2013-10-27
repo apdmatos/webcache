@@ -8,13 +8,12 @@
  * @param  {Processor} processor
  * @param  {ProcessorData} state
  */
-function posProcessorData(processor, state, baseUrl, relPath, engine, format) {
+function posProcessorData(processor, state, baseUrl, relPath, engine) {
 	this.processor 		= processor;
 	this.processorState = state;
 	this.baseUrl 		= baseUrl;
 	this.relPath 		= relPath;
 	this.engine			= engine;
-	this.format			= format;
 }
 
 
@@ -27,13 +26,13 @@ function posProcessorData(processor, state, baseUrl, relPath, engine, format) {
  * @param  {ProcessorData} state
  * @param  {String[]} regexps
  */
-function regexPosProcessorData(processor, state, baseUrl, relPath, engine, format, regexps) {
+function regexPosProcessorData(processor, state, baseUrl, relPath, engine, regexps) {
 
     // call base constructor
-    posProcessorData.call(this, processor, state, baseUrl, relPath, engine, format);
+    posProcessorData.call(this, processor, state, baseUrl, relPath, engine);
 
     // String[]
-	this.regexps = regex;
+	this.regexps = regexps;
 }
 regexPosProcessorData.prototype = new posProcessorData;
 

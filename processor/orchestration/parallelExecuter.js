@@ -14,9 +14,9 @@ var util = require('util');
 var utils = require('./../util');
 
 
-function parallelExecutor(processors) {
+function parallelExecutor(nextProcessor, store, processors) {
 
-
+    baseProcessor.apply(this, [baseProcessor, store]);
 	this.processors = processors;
 
 }
@@ -32,9 +32,10 @@ utils.extend(absoluteUriProcessor.prototype, {
         var self = this;
         state = baseProcessor.prototype.process.apply(this, arguments);
 
-
+        var next = utils.callbackWrapper(this.next, this, [url, engine, page, state, done]);
+        
         // variable to count how many processors have completed
-        var waitFn = utils.cumulatingCallbacks(done, this);
+        var waitFn = utils.cumulatingCallbacks(next, this);
 
         // execute processors in parallel, synhronizing the result
         for (var i = 0, len = this.processors; i < len; ++i) {

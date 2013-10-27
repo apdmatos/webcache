@@ -13,9 +13,9 @@ var absoluteUriProcessor = require('./processor/absoluteUriProcessor');
 var imgProcessor = require('./processor/imgProcessor');
 var cssProcessor = require('./processor/cssProcessor');
 var jsProcessor = require('./processor/jsProcessor');
-var regexProcessor = require('./processor/regexProcessor');
 var htmlCrawlProcessor = require('./processor/htmlCrawlProcessor');
 var htmlDownloaderProcessor = require('./processor/htmlDownloaderProcessor');
+var regexPosProcessor = require('./posProcessors/regexPosProcessor');
 
 
 var config = require('./config');
@@ -31,22 +31,27 @@ var urls = [
 var store = new store(config);
 
 
+
+var posProcessor = new regexPosProcessor([
+    new imgProcessor(null, store),
+    new cssProcessor(null, store),
+    new jsProcessor (null, store)
+]);
+
 var processor = new loadScriptProcessor(
     new previewProcessor(
     	new absoluteUriProcessor(
             new imgProcessor(
                 new cssProcessor(
                     new jsProcessor(
-                        new regexProcessor(
-                            new htmlCrawlProcessor(
-                                new htmlDownloaderProcessor(null, store),
-                                store
-                            ),
+                        new htmlCrawlProcessor(
+                            new htmlDownloaderProcessor(null, store),
                             store
                         ),
                         store
                     ),
-                    store
+                    store,
+                    posProcessor
                 ),
                 store
             ),

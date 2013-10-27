@@ -14,11 +14,10 @@ var utils           = require('./../util'),
  * @param  {[Store]} store
  * @param  {[WebSiteSelectorConfiguration]} webSiteSelectorConfiguration
  */
-function processor(nextProcessor, store, webSiteSelectorConfiguration) {
+function processor(nextProcessor, store) {
 
     this.nextProcessor  = nextProcessor;
     this.store          = store;
-    this.selectorConfig = this.webSiteSelectorConfiguration;
 }
 
 

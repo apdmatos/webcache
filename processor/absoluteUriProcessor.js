@@ -9,9 +9,9 @@ var phantomFunc = require('../node-phantom-extensions/parameterFunction')
 
 
 // processor constructor
-function absoluteUriProcessor() {
+function absoluteUriProcessor(nextProcessor, store) {
     // call base constructor
-    baseProcessor.apply(this, arguments);
+    baseProcessor.apply(this, [nextProcessor, store]);
 
 }
 

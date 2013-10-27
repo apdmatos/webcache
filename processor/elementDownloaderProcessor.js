@@ -7,19 +7,23 @@
 
 
 // Processor dependencies
-var baseProcessor = require('./processor');
-var urlMod = require('url');
-var util = require('util');
-var utils = require('./../util');
-var phantomFunc = require('../node-phantom-extensions/parameterFunction');
+var baseProcessor       = require('./processor')
+    posProcessorData    = require('../posProcessors/data/posProcessorData'),
+    urlMod              = require('url'),
+    util                = require('util'),
+    utils               = require('./../util'),
+    phantomFunc         = require('../node-phantom-extensions/parameterFunction');
 
 
-
-// baseProcessor constructor
-function elementDownloaderProcessor() {
+/**
+ * @constructor
+ * Abstract class to download assets
+ * @param  {PosProcessor} regexProcessor
+ */
+function elementDownloaderProcessor(nextProcessor, store, posProcessor) {
     // call base constructor
-    baseProcessor.apply(this, arguments);
-
+    baseProcessor.apply(this, [nextProcessor, store]);
+    this.posProcessor = posProcessor;
 }
 
 
@@ -28,7 +32,7 @@ util.inherits(elementDownloaderProcessor, baseProcessor);
 utils.extend(elementDownloaderProcessor.prototype, {
 
     // protected method that is called from each specific class
-    processElement: function(url, engine, page, state, elemName, elemUrlAttr, format, done) {
+    processElement: function(url, engine, page, state, elemName, elemUrlAttr, done) {
 
     	var self = this;
     	var relPath = this.getRelativePath();
@@ -50,7 +54,7 @@ utils.extend(elementDownloaderProcessor.prototype, {
 	            }
 	            else {
                     
-	            	self.downloadFiles(url, res, engine, state, format, function() {  
+	            	self.downloadFiles(url, res, engine, state, function() {  
 	            		self.next(url, engine, page, state, done);
 	            	});
 	            }
@@ -61,14 +65,14 @@ utils.extend(elementDownloaderProcessor.prototype, {
     // param urls {UrlStruct[]}
     // param engine {Engine}
     // param downloadAssetFunc {Function(UrlStruct)}
-    downloadFiles: function(baseUrl, urls, engine, state, format, done) {
+    downloadFiles: function(baseUrl, urls, engine, state, done) {
 
 
         var waitFn = utils.comulatingCallbacks(done, this);
         for (var i = 0, len = urls.length; i < len; ++i) {
             var fn = waitFn();
             var struct = urls[i];
-            this.downloadAsset(baseUrl, struct, engine, state, format, fn);
+            this.downloadAsset(baseUrl, struct, engine, state, fn);
         }
     },
 
@@ -76,17 +80,31 @@ utils.extend(elementDownloaderProcessor.prototype, {
     // param urlStruct {UrlStruct}
     // param engine {Engine}
     // param downloadCompleted {Function(err, url)}
-    downloadAsset: function(baseUrl, urlStruct, engine, state, format, downloaCompletedFunc) { 
+    downloadAsset: function(baseUrl, urlStruct, engine, state, downloaCompletedFunc) { 
 		var self = this;
-    	engine.getAssetFile(baseUrl, urlStruct.url, format,
+    	engine.getAssetFile(baseUrl, urlStruct.url, self.getEncoding(),
     		function(data) { // success callback
 
     			// TODO: run pre processors
+                if(self.posProcessor) {
+                    
+                    var absoluteUrl = urlMod.resolve(baseUrl, urlStruct.url);
+                    var posProcessorData = self.getPosProcessorsData(state, absoluteUrl, engine);
 
-    			// save file to disk
-    			self.saveFile(data, state, urlStruct, function(err) {
-    				downloaCompletedFunc(err, urlStruct.url);	
-    			})
+                    // run pre processor
+                    self.posProcessor.process(data, posProcessorData, function(fileData) {
+                        // save file to disk
+                        self.saveFile(data, state, urlStruct, function(err) {
+                            downloaCompletedFunc(err, urlStruct.url);   
+                        })
+                    });
+
+                }else {
+                    // save file to disk
+                    self.saveFile(data, state, urlStruct, function(err) {
+                        downloaCompletedFunc(err, urlStruct.url);   
+                    });
+                }
     		}, 
     		function(error) {
     			// error callback
@@ -97,6 +115,12 @@ utils.extend(elementDownloaderProcessor.prototype, {
 
     // Abstract method that should be defined by each specific class
     getRelativePath: function() { /* must be defined on a subclass */ },
+
+    /**
+     * returns the file encoding
+     * @return {String} the encoding
+     */
+    getEncoding: function() { /* must be defined on a subclass */ },
 
     // Abstract method that should be defined by each specific class
     // param data {Buffer} data downloaded from the internet
@@ -111,7 +135,16 @@ utils.extend(elementDownloaderProcessor.prototype, {
      * @param  {[ProcessorData]} state
      * @return {Boolean} - returns true if it can process, false otherwise
      */
-    apply: function(url, state) { /* must be defined on a subclass */ }
+    apply: function(url, state) { /* must be defined on a subclass */ },
+
+    /**
+     * Hook method to return posProcessor data
+     * @param  {ProcessorData} state   
+     * @param  {String} baseUrl 
+     * @param  {Engine} engine  
+     * @return {PosProcessorData}  The pos processor data to call posProcessor
+     */
+    getPosProcessorsData: function(state, baseUrl, engine) { /* must be defined on a subclass */ }
 });
 
 

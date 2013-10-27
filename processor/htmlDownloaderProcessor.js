@@ -6,9 +6,9 @@ var baseProcessor = require('./processor');
 var util = require('util');
 var utils = require('./../util');
 
-function htmlDownloaderProcessor() {
+function htmlDownloaderProcessor(nextProcessor, store) {
     // call base constructor
-    baseProcessor.apply(this, arguments);
+    baseProcessor.apply(this, [nextProcessor, store]);
 
 };
 
