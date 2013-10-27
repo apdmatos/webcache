@@ -7,7 +7,7 @@
 
 
 // Processor dependencies
-var processor = require('./processor');
+var baseProcessor = require('./processor');
 var urlMod = require('url');
 var util = require('util');
 var utils = require('./../util');
@@ -15,15 +15,15 @@ var phantomFunc = require('../node-phantom-extensions/parameterFunction');
 
 
 
-// processor constructor
+// baseProcessor constructor
 function elementDownloaderProcessor() {
     // call base constructor
-    processor.apply(this, arguments);
+    baseProcessor.apply(this, arguments);
 
 }
 
 
-util.inherits(elementDownloaderProcessor, processor);
+util.inherits(elementDownloaderProcessor, baseProcessor);
 
 utils.extend(elementDownloaderProcessor.prototype, {
 
@@ -45,7 +45,7 @@ utils.extend(elementDownloaderProcessor.prototype, {
                         console.log('error changing urls to download... ', err);
                     }
 
-	            	// in case of an error call the next processor
+	            	// in case of an error call the next baseProcessor
 	            	self.next(url, engine, page, state, done);
 	            }
 	            else {
@@ -63,19 +63,13 @@ utils.extend(elementDownloaderProcessor.prototype, {
     // param downloadAssetFunc {Function(UrlStruct)}
     downloadFiles: function(baseUrl, urls, engine, state, format, done) {
 
-        var downloads = 0;
 
-	    function downloadCompleted(err, url) {
-	    	if(err) console.log('download ' + url + ' completed with errors...', err);
-	    	else console.log('download ' + url + ' completed with success!');
-			if(--downloads == 0) done();
-	    }
-
-    	for (var i = 0, len = urls.length; i < len; ++i) {
-    		++ downloads;
-    		var struct = urls[i];
-    		this.downloadAsset(baseUrl, struct, engine, state, format, downloadCompleted);
-    	}
+        var waitFn = utils.comulatingCallbacks(done, this);
+        for (var i = 0, len = urls.length; i < len; ++i) {
+            var fn = waitFn();
+            var struct = urls[i];
+            this.downloadAsset(baseUrl, struct, engine, state, format, fn);
+        }
     },
 
     // private method to download a specific asset file
@@ -109,7 +103,15 @@ utils.extend(elementDownloaderProcessor.prototype, {
     // param state {ProcessorData}
     // param urlStruct {UrlStruct} containing the file name and the file path
     // param doneFunc {Function(err)}
-    saveFile: function(data, state, urlStruct, doneFunc) { /* must be defined on a subclass */ }
+    saveFile: function(data, state, urlStruct, doneFunc) { /* must be defined on a subclass */ },
+
+    /**
+     * Checks if this processor can process the given URL path
+     * @param  {String} url
+     * @param  {[ProcessorData]} state
+     * @return {Boolean} - returns true if it can process, false otherwise
+     */
+    apply: function(url, state) { /* must be defined on a subclass */ }
 });
 
 
@@ -195,7 +197,7 @@ function processPageElementsOnBrowser(elementName, elemUrlAttr, localPath) {
 }
 
 
-// exports the processor
+// exports the baseProcessor
 module.exports = elementDownloaderProcessor;
 
 

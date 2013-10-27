@@ -3,6 +3,10 @@
 var fs = require('fs');
 
 
+
+
+
+
 /**
  * Utility functions to be used on the code
  */
@@ -43,11 +47,23 @@ module.exports = {
                 s4() + '-' + s4() + s4() + s4();
     },
 
+    /**
+     * Returns an empty function if the function given is null
+     * @param  {Function} callback 
+     * @return {Function} 
+     */
     callbackOrDummy: function(callback) {
         if(!callback) callback = function (){}
         return callback;
     },
 
+    /**
+     * Wraps a function to be executed on a specific context when called
+     * @param  {Function}   callback [description]
+     * @param  {Object}     context  [description]
+     * @param  {Object[]}   params   [description]
+     * @return {Function}
+     */
     callbackWrapper: function(callback, context, params) {
         return function() {
             if(callback) {
@@ -57,6 +73,10 @@ module.exports = {
         }
     },
 
+    /**
+     * Extends an object with the other object properties
+     * @return {Object}
+     */
     extend: function() {
         var options, name, src, copy, copyIsArray, clone, target = arguments[0] || {},
             i = 1,
@@ -147,6 +167,24 @@ module.exports = {
             }
         }
         return target;
+    },
+
+    /**
+     * Function to execute a bunch of functions in parallel and wait for all the callbacks to procced
+     * @param  {Function} doneFn The function to be executed when all the callbacks have executed
+     */
+    comulatingCallbacks: function(doneFn, context) {
+
+        var waiting = 0;
+        context = context || this;
+        return function () {
+            ++waiting;
+            return function() {
+                if(--waiting === 0){
+                    doneFn.apply(context, arguments);
+                }
+            }
+        }
     }
 
 

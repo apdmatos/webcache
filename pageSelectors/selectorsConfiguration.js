@@ -6,14 +6,17 @@ var config = {
     all: {
         download: {
             htmlElements: ['img', 'script', 'link', 'style'],
-            regex: [
-                '\b.*.jpg\b', '\b.*.jpeg\b', '\b.*.png\b', '\b.*.gif\b'
-            ]
+            regex: {
+                javascript: [],
+                stylesheets: ['url\s*\((.*\.(png|jpg|gif))\)'],
+                htmlFiles: []
+            }
         },
         absolutePath: ['a'/*, 'img', 'script', 'link', 'style'*/],
         crawl: null
     },
 
+    // specific configuration to navigate on websites
     websites: {
         'http://www.sapo.pt/': {
             next: {

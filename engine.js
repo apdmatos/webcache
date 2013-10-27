@@ -1,10 +1,7 @@
 
 
 var phantom=require('node-phantom');
-//var path = require('path');
-//var fs = require('fs');
 var urlMod = require('url');
-//var utils = require('./util')
 var http = require('http');
 var https = require('https');
 

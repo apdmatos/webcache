@@ -5,7 +5,6 @@ var baseProcessor = require('./processor');
 var urlMod = require('url');
 var util = require('util');
 var utils = require('./../util');
-var phantomFunc = require('../node-phantom-extensions/parameterFunction')
 
 
 

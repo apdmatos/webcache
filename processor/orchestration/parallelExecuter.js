@@ -34,20 +34,16 @@ utils.extend(absoluteUriProcessor.prototype, {
 
 
         // variable to count how many processors have completed
-        var processorsDone = 0;
-	    function downloadCompleted() {
-	    	console.log('processor done... still waiting for: ' + processorsDone + ' processors');
-			if(--processorsDone == 0) self.next(url, engine, page, state, done);
-	    }
+        var waitFn = utils.cumulatingCallbacks(done, this);
 
-	    // execute processors in parallel, synhronizing the result
-    	for (var i = 0, len = this.processors; i < len; ++i) {
-    		++ processorsDone;
-    		var processor = this.processors[i];
+        // execute processors in parallel, synhronizing the result
+        for (var i = 0, len = this.processors; i < len; ++i) {
+            var fn = waitFn();
+            var processor = this.processors[i];
 
-    		// call the processor
-    		processor.process(url, engine, page, state, processorsDone);
-    	}
+            // call the processor
+            processor.process(url, engine, page, state, fn);
+        }
 
 	}
 

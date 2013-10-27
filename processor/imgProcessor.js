@@ -1,6 +1,6 @@
 
 ////////////////////////////
-// porpose:
+// purpose:
 // 	 Downloads all the images on the page and stores them on a local 
 // 	 folder changing the URL to a relative one
 
@@ -10,7 +10,6 @@ var baseProcessor = require('./elementDownloaderProcessor');
 var urlMod = require('url');
 var util = require('util');
 var utils = require('./../util');
-var phantomFunc = require('../node-phantom-extensions/parameterFunction')
 
 
 
@@ -45,7 +44,15 @@ utils.extend(imgProcessor.prototype, {
     // param doneFunc {Function(err)}
     saveFile: function(data, state, urlStruct, doneFunc) { 
     	this.store.saveImage(data, state.storedata, urlStruct.name, doneFunc);
-    }
+    },
+
+    /**
+     * Checks if this processor can process the given URL path
+     * @param  {String} url
+     * @param  {[ProcessorData]}    state
+     * @return {Boolean} - returns true if it can process, false otherwise
+     */
+    apply: function(url, state) {  }
 
 
 });
