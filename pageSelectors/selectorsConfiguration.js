@@ -8,7 +8,7 @@ var config = {
             htmlElements: ['img', 'script', 'link', 'style'],
             regex: {
                 javascript: [],
-                stylesheets: ['url\s*\((.*\.(png|jpg|gif))\)'],
+                stylesheets: [/url\s*\(([^)]+\.(png|jpg|gif))\)/g],
                 htmlFiles: []
             }
         },

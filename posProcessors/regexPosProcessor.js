@@ -39,7 +39,7 @@ utils.extend(regexPosProcessor.prototype, {
     	var processedUrls = {};
 
     	function applyRegex(match, p1, p2, p3, offset, string) {
-    		var url = p1.substring(1, p1.length);
+    		var url = p1;
     		var processor = self._getProcessorToDownload(url, state);
     		if(!processor) 
 			{
@@ -77,14 +77,14 @@ utils.extend(regexPosProcessor.prototype, {
 			}
 
 			
-			// TODO: HACK!!! will just work for CSS files
-			// Must be reviewed
-    		return "url(" + localUrl;
+			return match.replace(url, localUrl);
     	}
 
     	var regex;
 		for(var i = 0, len = regexps.length; i < len; ++i) {
-			regex = new RegExp(regexps[i]);
+
+			//str.replace(/url\s*\(([^)]+\.(png|jpg|gif))\)/g, fn)
+			//regex = new RegExp(regexps[i]);
     		file = file.replace(regex, applyRegex, "gi");
     	}	
     	
