@@ -94,7 +94,7 @@ utils.extend(elementDownloaderProcessor.prototype, {
                     // run pre processor
                     self.posProcessor.process(data, posProcessorData, function(fileData) {
                         // save file to disk
-                        self.saveFile(data, state, urlStruct, function(err) {
+                        self.saveFile(fileData, state, urlStruct, function(err) {
                             downloaCompletedFunc(err, urlStruct.url);   
                         })
                     });
