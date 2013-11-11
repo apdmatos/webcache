@@ -82,9 +82,6 @@ utils.extend(regexPosProcessor.prototype, {
 
     	var regex;
 		for(var i = 0, len = regexps.length; i < len; ++i) {
-
-			//str.replace(/url\s*\(([^)]+\.(png|jpg|gif))\)/g, fn)
-			//regex = new RegExp(regexps[i]);
 			regex = regexps[i];
     		file = file.replace(regex, applyRegex, "gi");
     	}	

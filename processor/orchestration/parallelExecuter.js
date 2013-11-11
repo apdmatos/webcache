@@ -1,30 +1,39 @@
 
-///////////////////////////
-//
-// this is a special processor that allows the execution of multiple processors at the same time
-//	
-//			  |----	p1 ----- |
-// 		p0---- ---- p2 -----  ----- p4
-//			  |----	p3 ----- | 
-//
+var baseProcessor = require('./processor'),
+    util = require('util'),
+    utils = require('./../util');
 
 
-var baseProcessor = require('./processor');
-var util = require('util');
-var utils = require('./../util');
-
-
+/**
+ * this is a special processor that allows the execution of multiple processors at the same time
+ * 
+ *            |---- p1 ----- |
+ *      p0---- ---- p2 -----  ----- p4
+ *            |---- p3 ----- | 
+ *            
+ * @param  {[Processor]} nextProcessor
+ * @param  {[Store]} store
+ * @param  {[Processor]} processors The processors to be executed on parallel
+ */
 function parallelExecutor(nextProcessor, store, processors) {
 
     baseProcessor.apply(this, [baseProcessor, store]);
 	this.processors = processors;
 
 }
-
 util.inherits(absoluteUriProcessor, baseProcessor);
 
 utils.extend(absoluteUriProcessor.prototype, {
 
+    /**
+     * Process the document content
+     * @param  {[String]}           url
+     * @param  {[Engine]}           engine
+     * @param  {[PantomPage]}       page
+     * @param  {[ProcessorData]}    state
+     * @param  {Function}           done
+     * @return {[ProcessorData]} if the state parameter is null, creates a new one
+     */
 	process: function(url, engine, page, state, done) {
         console.log('parallel executor processor...');
 

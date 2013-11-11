@@ -1,23 +1,18 @@
 
 
-//////////////////////
-//
-// Abstract class to download page elements, sush as: img, css, script, ...
-//
-
-
 // Processor dependencies
-var baseProcessor       = require('./processor')
+var baseProcessor       = require('./processor'),
     posProcessorData    = require('../posProcessors/data/posProcessorData'),
     urlMod              = require('url'),
     util                = require('util'),
     utils               = require('./../util'),
     phantomFunc         = require('../node-phantom-extensions/parameterFunction');
 
-
 /**
- * @constructor
- * Abstract class to download assets
+ * @Constructor
+ * Abstract class to download page assets (such as: img, css, script, ...)
+ * @param  {[Processor]} nextProcessor
+ * @param  {[Store]} store
  * @param  {PosProcessor} regexProcessor
  */
 function elementDownloaderProcessor(nextProcessor, store, posProcessor) {
@@ -28,10 +23,19 @@ function elementDownloaderProcessor(nextProcessor, store, posProcessor) {
 
 
 util.inherits(elementDownloaderProcessor, baseProcessor);
-
 utils.extend(elementDownloaderProcessor.prototype, {
 
-    // protected method that is called from each specific class
+    /**
+     * @protected
+     * protected method that is called from each specific class
+     * @param  {String}         url   
+     * @param  {Engine}         engine
+     * @param  {PahntomPage}    page 
+     * @param  {ProcessorData}  state
+     * @param  {String}         elemName
+     * @param  {String}         elemUrlAttr
+     * @param  {Function}       done
+     */
     processElement: function(url, engine, page, state, elemName, elemUrlAttr, done) {
 
     	var self = this;
@@ -61,10 +65,14 @@ utils.extend(elementDownloaderProcessor.prototype, {
 	        });
     },
 
-    // private method to download files and store them locally
-    // param urls {UrlStruct[]}
-    // param engine {Engine}
-    // param downloadAssetFunc {Function(UrlStruct)}
+    /**
+     * private method to download files and store them locally
+     * @param  {String}         baseUrl 
+     * @param  {UrlStruct[]}    urls    
+     * @param  {Engine}         engine  
+     * @param  {ProcessorData}  state
+     * @param  {Function}       done
+     */
     downloadFiles: function(baseUrl, urls, engine, state, done) {
 
 
@@ -76,10 +84,14 @@ utils.extend(elementDownloaderProcessor.prototype, {
         }
     },
 
-    // private method to download a specific asset file
-    // param urlStruct {UrlStruct}
-    // param engine {Engine}
-    // param downloadCompleted {Function(err, url)}
+    /**
+     * private method to download a specific asset file
+     * @param  {String}         baseUrl
+     * @param  {UrlStruct[]}    urlStruct
+     * @param  {Engine}         engine
+     * @param  {ProcessorData}  state
+     * @param  {Function}       downloaCompletedFunc
+     */
     downloadAsset: function(baseUrl, urlStruct, engine, state, downloaCompletedFunc) { 
 		var self = this;
     	engine.getAssetFile(baseUrl, urlStruct.url, self.getEncoding(),
@@ -113,7 +125,10 @@ utils.extend(elementDownloaderProcessor.prototype, {
     	);
     },
 
-    // Abstract method that should be defined by each specific class
+    /**
+     * Abstract method that should be defined by each specific class
+     * @return {String} The relative path to set on URL's
+     */
     getRelativePath: function() { /* must be defined on a subclass */ },
 
     /**
@@ -122,11 +137,13 @@ utils.extend(elementDownloaderProcessor.prototype, {
      */
     getEncoding: function() { /* must be defined on a subclass */ },
 
-    // Abstract method that should be defined by each specific class
-    // param data {Buffer} data downloaded from the internet
-    // param state {ProcessorData}
-    // param urlStruct {UrlStruct} containing the file name and the file path
-    // param doneFunc {Function(err)}
+    /**
+     * Abstract method that should be defined by each specific class
+     * @param  {String|Stream}  data      downloaded from the internet
+     * @param  {ProcessorData}  state     the state to save the file
+     * @param  {UrlStruct[]}    urlStruct containing the file name and the file path
+     * @param  {Function}       doneFunc  Function to be executed
+     */
     saveFile: function(data, state, urlStruct, doneFunc) { /* must be defined on a subclass */ },
 
     /**

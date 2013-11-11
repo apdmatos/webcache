@@ -1,10 +1,16 @@
 
-var utils = require('./../util');
+var utils           = require('./../util'),
+    baseProcessor   = require('./processor'),
+    util            = require('util'),
+    utils           = require('./../util');
 
-var baseProcessor = require('./processor');
-var util = require('util');
-var utils = require('./../util');
 
+/**
+ * @constructor
+ * Gets a pages's print screen and stores it locally
+ * @param  {[Processor]} nextProcessor
+ * @param  {[Store]} store
+ */
 function previewProcessor(nextProcessor, store) {
     // call base constructor
     baseProcessor.apply(this, [nextProcessor, store]);
@@ -12,9 +18,17 @@ function previewProcessor(nextProcessor, store) {
 };
 
 util.inherits(previewProcessor, baseProcessor);
-
 utils.extend(previewProcessor.prototype, {
 
+    /**
+     * Process the document content
+     * @param  {[String]}           url
+     * @param  {[Engine]}           engine
+     * @param  {[PantomPage]}       page
+     * @param  {[ProcessorData]}    state
+     * @param  {Function}           done
+     * @return {[ProcessorData]} if the state parameter is null, creates a new one
+     */
     process: function(url, engine, page, state, done) {
 
         console.log('preview processor...');

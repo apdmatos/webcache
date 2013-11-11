@@ -1,14 +1,17 @@
 
 
 // Processor dependencies
-var baseProcessor = require('./processor');
-var util = require('util');
-var utils = require('./../util');
-var phantomFunc = require('../node-phantom-extensions/parameterFunction')
+var baseProcessor   = require('./processor'),
+    util            = require('util'),
+    utils           = require('./../util'),
+    phantomFunc     = require('../node-phantom-extensions/parameterFunction');
 
 
-
-// processor constructor
+/**
+ * Converts all the links on the page to an absolute URL
+ * @param  {[Processor]} nextProcessor
+ * @param  {[Store]} store
+ */
 function absoluteUriProcessor(nextProcessor, store) {
     // call base constructor
     baseProcessor.apply(this, [nextProcessor, store]);
@@ -20,6 +23,15 @@ util.inherits(absoluteUriProcessor, baseProcessor);
 
 utils.extend(absoluteUriProcessor.prototype, {
 
+    /**
+     * Process the document content
+     * @param  {[String]}           url
+     * @param  {[Engine]}           engine
+     * @param  {[PantomPage]}       page
+     * @param  {[ProcessorData]}    state
+     * @param  {Function}           done
+     * @return {[ProcessorData]} if the state parameter is null, creates a new one
+     */
     process: function(url, engine, page, state, done) {
         console.log('absolute uri processor...');
 
@@ -66,9 +78,6 @@ utils.extend(absoluteUriProcessor.prototype, {
 });
 
 
-/////////////
-// TODO: check if this code should be on this file... Can it be reusable?
-// remove function rel_to_abs function to a script that should be loaded by the browser
 
 
 

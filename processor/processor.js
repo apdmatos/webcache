@@ -12,7 +12,6 @@ var utils           = require('./../util'),
  * Processor constructor
  * @param  {[Processor]} nextProcessor
  * @param  {[Store]} store
- * @param  {[WebSiteSelectorConfiguration]} webSiteSelectorConfiguration
  */
 function processor(nextProcessor, store) {
 

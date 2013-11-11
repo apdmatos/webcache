@@ -1,9 +1,17 @@
 
 
-
-// TODO: this should be on a different repository to be reusable by another projects
+/**
+ * TODO: this should be on a different repository to be reusable by another projects
+ * Formaters to pass parameters to functions
+ * @type {Object, Function}
+ */
 var formatters = {
 
+	/**
+	 * parses the parameter to be used as a string parameter to passed into a function
+	 * @param  {String} param 
+	 * @return {String} A new string with ''
+	 */
 	string: function(param) {
 		return "'" + param + "'";
 	}
@@ -11,6 +19,13 @@ var formatters = {
 };
 
 
+/**
+ * This function will return a string with a auto execution function with parameters to be executed on 
+ * phantomJS process
+ * @param  {Function} func The function to pass the parameters to
+ * @param  {Object[]} args The function parameters
+ * @return {String}        The function with the parameters to be sent to phantomJS process
+ */
 module.exports = function (func, args) {
 
 	var params = "(";

@@ -26,6 +26,15 @@ function cssProcessor(nextProcessor, store, regexProcessor) {
 util.inherits(cssProcessor, baseProcessor);
 utils.extend(cssProcessor.prototype, {
 
+    /**
+     * Process the document content
+     * @param  {[String]}           url
+     * @param  {[Engine]}           engine
+     * @param  {[PantomPage]}       page
+     * @param  {[ProcessorData]}    state
+     * @param  {Function}           done
+     * @return {[ProcessorData]} if the state parameter is null, creates a new one
+     */
     process: function(url, engine, page, state, done) {
 
         console.log('css processor...');
@@ -33,7 +42,10 @@ utils.extend(cssProcessor.prototype, {
         this.processElement(url, engine, page, state, 'link', 'href', done);
     },
 
-    // Abstract method that should be defined by each specific class
+    /**
+     * Abstract method that should be defined by each specific class
+     * @return {String} The relative path to set on URL's
+     */
     getRelativePath: function() { 
     	return this.store.getCSSRelativePath();
     },
@@ -46,11 +58,13 @@ utils.extend(cssProcessor.prototype, {
         return 'utf8';
     },
 
-    // Abstract method that should be defined by each specific class
-    // param data {Buffer} data downloaded from the internet
-    // param state {ProcessorData}
-    // param urlStruct {UrlStruct} containing the file name and the file path
-    // param doneFunc {Function(err)}
+    /**
+     * Abstract method that should be defined by each specific class
+     * @param  {String|Stream}  data      downloaded from the internet
+     * @param  {ProcessorData}  state     the state to save the file
+     * @param  {UrlStruct[]}    urlStruct containing the file name and the file path
+     * @param  {Function}       doneFunc  Function to be executed
+     */
     saveFile: function(data, state, urlStruct, doneFunc) { 
     	this.store.saveCss(data, state.storedata, urlStruct.name, doneFunc);
     },

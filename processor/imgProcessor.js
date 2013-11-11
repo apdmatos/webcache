@@ -1,19 +1,19 @@
 
-////////////////////////////
-// purpose:
-// 	 Downloads all the images on the page and stores them on a local 
-// 	 folder changing the URL to a relative one
-
-
 // Processor dependencies
-var baseProcessor = require('./elementDownloaderProcessor');
-var urlMod = require('url');
-var util = require('util');
-var utils = require('./../util');
+var baseProcessor   = require('./elementDownloaderProcessor'),
+    urlMod          = require('url'),
+    util            = require('util'),
+    utils           = require('./../util');
 
 
 
-// processor constructor
+/**
+ * @constructor
+ * Downloads all the images on the page and stores them on a local 
+ * @param  {[Processor]} nextProcessor
+ * @param  {[Store]} store
+ * @param  {RegexPosProcessor} regexProcessor
+ */
 function imgProcessor(nextProcessor, store) {
     // call base constructor
     baseProcessor.apply(this, [nextProcessor, store]);
@@ -22,9 +22,17 @@ function imgProcessor(nextProcessor, store) {
 
 
 util.inherits(imgProcessor, baseProcessor);
-
 utils.extend(imgProcessor.prototype, {
 
+    /**
+     * Process the document content
+     * @param  {[String]}           url
+     * @param  {[Engine]}           engine
+     * @param  {[PantomPage]}       page
+     * @param  {[ProcessorData]}    state
+     * @param  {Function}           done
+     * @return {[ProcessorData]} if the state parameter is null, creates a new one
+     */
     process: function(url, engine, page, state, done) {
 
         console.log('img processor...');
@@ -32,7 +40,10 @@ utils.extend(imgProcessor.prototype, {
         this.processElement(url, engine, page, state, 'img', 'src', done);
     },
 
-    // Abstract method that should be defined by each specific class
+    /**
+     * Abstract method that should be defined by each specific class
+     * @return {String} The relative path to set on URL's
+     */
     getRelativePath: function() { 
     	return this.store.getImagesRelativePath();
     },
@@ -45,11 +56,13 @@ utils.extend(imgProcessor.prototype, {
         return 'binary';
     },    
 
-    // Abstract method that should be defined by each specific class
-    // param data {Buffer} data downloaded from the internet
-    // param state {ProcessorData}
-    // param urlStruct {UrlStruct} containing the file name and the file path
-    // param doneFunc {Function(err)}
+    /**
+     * Abstract method that should be defined by each specific class
+     * @param  {String|Stream}  data      downloaded from the internet
+     * @param  {ProcessorData}  state     the state to save the file
+     * @param  {UrlStruct[]}    urlStruct containing the file name and the file path
+     * @param  {Function}       doneFunc  Function to be executed
+     */    
     saveFile: function(data, state, urlStruct, doneFunc) { 
     	this.store.saveImage(data, state.storedata, urlStruct.name, doneFunc);
     },
