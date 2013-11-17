@@ -1,11 +1,11 @@
 
 
 // Processor dependencies
-var baseProcessor 	= require('./processor'),
-	urlMod 			= require('url'),
-	util 			= require('util'),
-	utils 			= require('./../util'),
-	phantomFunc 	= require('../node-phantom-extensions/parameterFunction');
+var baseProcessor 	= require('./processor')                                     ,
+	urlMod 			= require('url')                                             ,
+	util 			= require('util')                                            ,
+	utils 			= require('./../util')                                       ,
+	phantomFunc 	= require('../node-phantom-extensions/parameterFunction')    ;
 
 
 

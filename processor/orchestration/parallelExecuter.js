@@ -1,7 +1,7 @@
 
-var baseProcessor = require('./processor'),
-    util = require('util'),
-    utils = require('./../util');
+var baseProcessor = require('./processor')  ,
+    util = require('util')                  ,
+    utils = require('./../util')            ;
 
 
 /**

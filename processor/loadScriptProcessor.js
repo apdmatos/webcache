@@ -3,10 +3,10 @@
 
 var JQUERY_SCRIPT_LOCATION = "http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js";
 
-var utils = require('./../util'),
-    baseProcessor = require('./processor'),
-    util = require('util'),
-    utils = require('./../util');
+var utils = require('./../util')            ,
+    baseProcessor = require('./processor')  ,
+    util = require('util')                  ,
+    utils = require('./../util')            ;
 
 
 /**

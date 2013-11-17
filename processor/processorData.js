@@ -1,7 +1,7 @@
 
 
-var storedata = require('./../store/storedata'),
-	selectors = require('./../pageSelectors/pageSelectors');
+var storedata = require('./../store/storedata')                ,
+	selectors = require('./../pageSelectors/pageSelectors')    ;
 
 
 /**

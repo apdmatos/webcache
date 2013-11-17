@@ -1,12 +1,12 @@
 
 
 // Processor dependencies
-var baseProcessor       = require('./processor'),
-    posProcessorData    = require('../posProcessors/data/posProcessorData'),
-    urlMod              = require('url'),
-    util                = require('util'),
-    utils               = require('./../util'),
-    phantomFunc         = require('../node-phantom-extensions/parameterFunction');
+var baseProcessor       = require('./processor')                                    ,
+    posProcessorData    = require('../posProcessors/data/posProcessorData')         ,
+    urlMod              = require('url')                                            ,
+    util                = require('util')                                           ,
+    utils               = require('./../util')                                      ,
+    phantomFunc         = require('../node-phantom-extensions/parameterFunction')   ;
 
 /**
  * @Constructor

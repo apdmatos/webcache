@@ -1,9 +1,9 @@
 
 // Processor dependencies
-var baseProcessor   = require('./elementDownloaderProcessor'),
-    urlMod          = require('url'),
-    util            = require('util'),
-    utils           = require('./../util');
+var baseProcessor   = require('./elementDownloaderProcessor')   ,
+    urlMod          = require('url')                            ,
+    util            = require('util')                           ,
+    utils           = require('./../util')                      ;
 
 
 

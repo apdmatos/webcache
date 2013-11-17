@@ -1,12 +1,12 @@
 
 
 // Processor dependencies
-var baseProcessor           = require('./elementDownloaderProcessor'),
-    urlMod                  = require('url'),
-    util                    = require('util'),
-    utils                   = require('./../util'),
-    path                    = require('path'),
-    regexPosProcessorData   = require('../posProcessors/data/posProcessorData').regexPosProcessorData;
+var baseProcessor           = require('./elementDownloaderProcessor')                                   ,
+    urlMod                  = require('url')                                                            ,
+    util                    = require('util')                                                           ,
+    utils                   = require('./../util')                                                      ,
+    path                    = require('path')                                                           ,
+    regexPosProcessorData   = require('../posProcessors/data/posProcessorData').regexPosProcessorData   ;
 
 
 

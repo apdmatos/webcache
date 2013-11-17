@@ -4,7 +4,7 @@
  * ******************* Dependencies *******************
  * Abstract processor dependencies
  */
-var utils           = require('./../util'),
+var utils           = require('./../util')      ,
     processorData   = require('./processorData');
 
 
