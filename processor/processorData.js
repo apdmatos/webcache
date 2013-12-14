@@ -1,5 +1,6 @@
 
 
+// dependencies
 var storedata = require('./../store/storedata')                ,
 	selectors = require('./../pageSelectors/pageSelectors')    ;
 

@@ -43,6 +43,20 @@ utils.extend(processor.prototype, {
     },
 
     /**
+     * Should undo all the work done by @process methid
+     * @param  {[String]}           url
+     * @param  {[Engine]}           engine
+     * @param  {[PantomPage]}       page
+     * @param  {[ProcessorData]}    state
+     * @param  {Function}           done
+     */
+    compensate: function(url, engine, page, state, done) {
+
+        // TODO: must be implemented...
+        
+    },
+
+    /**
      * Begins the next processor execution
      * @param  {[String]}           url
      * @param  {[Engine]}           engine

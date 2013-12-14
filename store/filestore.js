@@ -1,4 +1,5 @@
 
+// store dependencies
 var urlMod  = require('url')        ,
     utils   = require('./../util')  ,
     path    = require('path')       ,
@@ -137,9 +138,23 @@ filestore.prototype = {
 
 
 
-// private functions
+/**
+ * Object that holds the private method which should not be exposed on the public interface.
+ * @type {Object: Function}
+ */
 var privateFuncs = {
 
+    /**
+     * Saves a file on the file system
+     * @param  {[type]} config               [description]
+     * @param  {[type]} storedata            [description]
+     * @param  {[type]} containingFolderPath [description]
+     * @param  {[type]} fileName             [description]
+     * @param  {[type]} data                 [description]
+     * @param  {[type]} format               [description]
+     * @param  {[type]} doneFunc             [description]
+     * @return {[type]}                      [description]
+     */
     saveFile: function(config, storedata, containingFolderPath, fileName, data, format, doneFunc) {
 
         this.getDirectoryPath(config, storedata, function(dirPath) {
@@ -158,6 +173,13 @@ var privateFuncs = {
         });
     },
 
+    /**
+     * [getDirectoryPath description]
+     * @param  {[type]}   config    [description]
+     * @param  {[type]}   storedata [description]
+     * @param  {Function} done      [description]
+     * @return {[type]}             [description]
+     */
     getDirectoryPath: function(config, storedata, done) {
         if(!storedata.dirPath) {
 

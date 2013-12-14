@@ -5,8 +5,6 @@ var fs = require('fs');
 
 
 
-
-
 /**
  * Utility functions to be used on the code
  */
