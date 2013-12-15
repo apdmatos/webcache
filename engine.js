@@ -1,9 +1,9 @@
 
 
-var phantom=require('node-phantom');
-var urlMod = require('url');
-var http = require('http');
-var https = require('https');
+var phantom     =require('node-phantom')                ,
+    urlMod      = require('url')                        ,
+    http        = require('follow-redirects').http      ,
+    https       = require('follow-redirects').https     ;
 
 
 function engine(processor) {
@@ -36,10 +36,11 @@ engine.prototype = {
 
         var url = urlMod.resolve(baseUrl, relativeUrl);
 
+        console.log('requesting file: ' + url);
         var protocol = url.indexOf("http://") == 0 ? http : https;
         var req = protocol.request(url, function(res) {
 
-            console.log("statuscode: ", res.statusCode);
+            console.log("url: " + url + " \nstatuscode: ", res.statusCode);
 
             var contentType = res.headers['content-type'];
 

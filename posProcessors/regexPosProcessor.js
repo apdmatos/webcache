@@ -102,7 +102,7 @@ utils.extend(regexPosProcessor.prototype, {
 		
 		// add the current name with a GUID appended
 		var urlParts = url.split('/'),
-			fileName = urlParts[urlParts.length - 1];
+			fileName = urlParts[urlParts.length - 1].split('?')[0];
 
 		return utils.newGuid() + fileName;
 	},

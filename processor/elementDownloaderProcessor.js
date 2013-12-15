@@ -97,7 +97,7 @@ utils.extend(elementDownloaderProcessor.prototype, {
     	engine.getAssetFile(baseUrl, urlStruct.url, self.getEncoding(),
     		function(data) { // success callback
 
-    			// TODO: run pre processors
+    			// run pre processors
                 if(self.posProcessor) {
                     
                     var absoluteUrl = urlMod.resolve(baseUrl, urlStruct.url);
@@ -107,6 +107,9 @@ utils.extend(elementDownloaderProcessor.prototype, {
                     self.posProcessor.process(data, posProcessorData, function(fileData) {
                         // save file to disk
                         self.saveFile(fileData, state, urlStruct, function(err) {
+                            if(err) {
+                                console.log('error writing the file ' + urlStruct.name + ' with error ' + err);
+                            }
                             downloaCompletedFunc(err, urlStruct.url);   
                         })
                     });
@@ -114,6 +117,9 @@ utils.extend(elementDownloaderProcessor.prototype, {
                 }else {
                     // save file to disk
                     self.saveFile(data, state, urlStruct, function(err) {
+                        if(err) {
+                            console.log('error writing the file ' + urlStruct.name + ' with error ' + err);
+                        }
                         downloaCompletedFunc(err, urlStruct.url);   
                     });
                 }
@@ -190,7 +196,7 @@ function processPageElementsOnBrowser(elementName, elemUrlAttr, localPath) {
 		
 		// add the current name with a GUID appended
 		var urlParts = url.split('/'),
-			fileName = urlParts[urlParts.length - 1];
+            fileName = urlParts[urlParts.length - 1].split('?')[0];
 
 		return newGuid() + fileName;
 	}

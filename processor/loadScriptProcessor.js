@@ -53,7 +53,7 @@ utils.extend(loadScriptProcessor.prototype, {
 
                 // load jquery in the page
                 page.includeJs(JQUERY_SCRIPT_LOCATION, function(e) {
-
+                    console.log('script ' + JQUERY_SCRIPT_LOCATION + ' included');
                     callback();
 
                 });
