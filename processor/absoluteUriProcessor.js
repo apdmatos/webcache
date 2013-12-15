@@ -56,7 +56,7 @@ utils.extend(absoluteUriProcessor.prototype, {
                     page.evaluate(
                         phantomFunc(processTagElements, [url, tag]),
                         function(err, res) {
-                            if(err) console.log('error including jquery... ', err);
+                            if(err || !res) console.log('error querying for elements ' + tag, err);
                             else console.log('tag: ' + res.tag + ' length: ' + res.length);
 
                             if(--evaluates == 0) self.next(url, engine, page, state, done);
