@@ -14,7 +14,15 @@ var loadScriptProcessor 	= require('../loadScriptProcessor')					,
 	utils 					= require('../../util')								;
 
 
-
+/**
+ * Helper function to get the factory method name and parameters
+ * @param  {string | Object} processorItem The item containing the processor data to create
+ * @return {Object}  An object with the following structure
+ *  {
+ *  	key: {string},
+ *  	parameters: {Object}
+ *  }
+ */
 var getProcessorNameAndParameters = function(processorItem) {
 	if(typeof(processorItem) === "string") {
 		return 	{
@@ -31,8 +39,19 @@ var getProcessorNameAndParameters = function(processorItem) {
 	}
 }
 
+/**
+ * The factory methods to create the processors
+ * @type {Object}
+ */
 var factories = {
 
+	/**
+	 * Creates a parallel processor
+	 * @param  {Processor} next  The next processor
+	 * @param  {Store}   store 
+	 * @param  {Object[]}  state to create the processors to be executed in parallel
+	 * @return {Processor}
+	 */
 	parallel: function(next, store, state) {
 		
 		var processors = [],
@@ -51,10 +70,22 @@ var factories = {
 		return new parallelProcessor(next, store, processors);
 	},
 
+	/**
+	 * @param  {Processor} next  The next processor
+	 * @param  {Store}   store 
+	 * @param  {Object[]}  state to create the processors to be executed in parallel
+	 * @return {Processor}
+	 */
 	img: function(next, store, state) {
 		return new imgProcessor(next, store);
 	},
 
+	/**
+	 * @param  {Processor} next  The next processor
+	 * @param  {Store}   store 
+	 * @param  {Object[]}  state to create the processors to be executed in parallel
+	 * @return {Processor}
+	 */
 	css: function(next, store, state) {
 		var posProcessor = new regexPosProcessor([
 		    new imgProcessor(null, store),
@@ -64,22 +95,52 @@ var factories = {
 		return new cssProcessor(next, store, posProcessor);
 	},
 
+	/**
+	 * @param  {Processor} next  The next processor
+	 * @param  {Store}   store 
+	 * @param  {Object[]}  state to create the processors to be executed in parallel
+	 * @return {Processor}
+	 */
 	js: function(next, store, state) {
 		return new jsProcessor(next, store);
 	},
 
+	/**
+	 * @param  {Processor} next  The next processor
+	 * @param  {Store}   store 
+	 * @param  {Object[]}  state to create the processors to be executed in parallel
+	 * @return {Processor}
+	 */
 	absoluteurl: function(next, store, state) {
 		return new absoluteUriProcessor(next, store);
 	},
 
+	/**
+	 * @param  {Processor} next  The next processor
+	 * @param  {Store}   store 
+	 * @param  {Object[]}  state to create the processors to be executed in parallel
+	 * @return {Processor}
+	 */
 	preview: function(next, store, state) {
 		return new previewProcessor(next, store);
 	},
 
+	/**
+	 * @param  {Processor} next  The next processor
+	 * @param  {Store}   store 
+	 * @param  {Object[]}  state to create the processors to be executed in parallel
+	 * @return {Processor}
+	 */
 	loadscript: function(next, store, state) {
 		return new loadScriptProcessor(next, store);
 	},
 
+	/**
+	 * @param  {Processor} next  The next processor
+	 * @param  {Store}   store 
+	 * @param  {Object[]}  state to create the processors to be executed in parallel
+	 * @return {Processor}
+	 */
 	downloader: function(next, store, state) {
 		return new htmlDownloaderProcessor(next, store);
 	}
