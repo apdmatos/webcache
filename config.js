@@ -42,7 +42,23 @@ var config = {
      * location for js files
      *
      */
-    jsFiles: 'js'
+    jsFiles: 'js',
+
+    /**
+     * The default configuration for processors
+     * How they are disposed and the dependencies 
+     * between them are described here
+     * @type {Object}
+     */
+    defaultProcessorConfig: [
+        { 
+            parallel: ['loadscript', 'preview']
+        },
+        {
+            parallel: ['img', 'css', 'js', 'absoluteurl']  
+        },
+        'downloader'
+    ]
 
 };
 

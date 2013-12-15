@@ -1,7 +1,7 @@
 
-var baseProcessor = require('./processor')  ,
+var baseProcessor = require('../processor') ,
     util = require('util')                  ,
-    utils = require('./../util')            ;
+    utils = require('../../util')           ;
 
 
 /**
@@ -17,13 +17,13 @@ var baseProcessor = require('./processor')  ,
  */
 function parallelExecutor(nextProcessor, store, processors) {
 
-    baseProcessor.apply(this, [baseProcessor, store]);
+    baseProcessor.apply(this, [nextProcessor, store]);
 	this.processors = processors;
 
 }
-util.inherits(absoluteUriProcessor, baseProcessor);
+util.inherits(parallelExecutor, baseProcessor);
 
-utils.extend(absoluteUriProcessor.prototype, {
+utils.extend(parallelExecutor.prototype, {
 
     /**
      * Process the document content
@@ -44,10 +44,10 @@ utils.extend(absoluteUriProcessor.prototype, {
         var next = utils.callbackWrapper(this.next, this, [url, engine, page, state, done]);
         
         // variable to count how many processors have completed
-        var waitFn = utils.cumulatingCallbacks(next, this);
+        var waitFn = utils.waitForCallbacks(next, this);
 
         // execute processors in parallel, synhronizing the result
-        for (var i = 0, len = this.processors; i < len; ++i) {
+        for (var i = 0, len = this.processors.length; i < len; ++i) {
             var fn = waitFn();
             var processor = this.processors[i];
 

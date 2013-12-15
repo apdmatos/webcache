@@ -76,7 +76,7 @@ utils.extend(elementDownloaderProcessor.prototype, {
     downloadFiles: function(baseUrl, urls, engine, state, done) {
 
 
-        var waitFn = utils.comulatingCallbacks(done, this);
+        var waitFn = utils.waitForCallbacks(done, this);
         for (var i = 0, len = urls.length; i < len; ++i) {
             var fn = waitFn();
             var struct = urls[i];

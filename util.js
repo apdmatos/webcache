@@ -171,7 +171,7 @@ module.exports = {
      * Function to execute a bunch of functions in parallel and wait for all the callbacks to procced
      * @param  {Function} doneFn The function to be executed when all the callbacks have executed
      */
-    comulatingCallbacks: function(doneFn, context) {
+    waitForCallbacks: function(doneFn, context) {
 
         var waiting = 0;
         context = context || this;
@@ -182,6 +182,19 @@ module.exports = {
                     doneFn.apply(context, arguments);
                 }
             }
+        }
+    },
+
+    /**
+     * Returns the first key presented in the object if any
+     * @param  {Object} 
+     * @return {String}     The first object key
+     */
+    getFirstKey: function(obj) {
+        if(!obj) return null;
+
+        for (var elem in obj) {
+            return elem;
         }
     }
 

@@ -32,7 +32,7 @@ utils.extend(regexPosProcessor.prototype, {
     	var self = this;
     	var state = posProcessorData.processorState;
     	var regexps = posProcessorData.regexps;
-    	var waitFn = utils.comulatingCallbacks(function() { done(file); }, this);
+    	var waitFn = utils.waitForCallbacks(function() { done(file); }, this);
     	var waitForProcessor = false;
 
     	// {url, urlStruct}
