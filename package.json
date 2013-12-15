@@ -1,11 +1,16 @@
 {
-  "name": "Webpages downloader",
+  "name": "Webpages-downloader",
   "description": "This node program will download webpages and their content, to be executed without website dependencies",
   "author": "André Matos <apdmatos@gmail.com>",
   "dependencies": {
-    "node-phantom": "0.2.x"
+    "node-phantom": "0.2.x",
+    "follow-redirects": "0.0.x"
   },
   "devDependencies": {
   },
-  "engine": "node >= 0.4.1"
+  "engine": "node >= 0.4.1",
+  "repository" : { 
+  	"type" : "git", 
+  	"url"  : "https://github.com/apdmatos/webcache"
+  }
 }
