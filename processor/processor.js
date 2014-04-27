@@ -1,14 +1,9 @@
-
-
-/**
- * ******************* Dependencies *******************
- * Abstract processor dependencies
- */
 var utils           = require('./../util')      ,
-    processorData   = require('./processorData');
+    processorData   = require('./data/processorData');
 
 
 /**
+ * Abstract processor
  * Processor constructor
  * @param  {[Processor]} nextProcessor
  * @param  {[Store]} store

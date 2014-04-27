@@ -51,14 +51,46 @@ var config = {
      * @type {Object}
      */
     defaultProcessorConfig: [
-        { 
-            parallel: ['loadscript', 'preview']
-        },
-        {
-            parallel: ['img', 'css', 'js', 'absoluteurl']  
-        },
-        'downloader'
-    ]
+        // { 
+        //     parallel: ['loadscript', 'preview']
+        // },
+        // {
+        //     parallel: ['img', 'css', 'js', 'absoluteurl']  
+        // },
+        //'downloader'
+        'preview'
+    ],
+
+    /**
+     * Configurations for phantom js process pool
+     * @type {Object}
+     */
+    phantomJSProcessPool: {
+
+        /**
+         * The max pool size
+         * @type {Number}
+         */
+        maxSize: 5,
+
+        /**
+         * The process waiting timeout on the pool to be processed
+         * @type {Number}
+         */
+        poolWatingTimeout: 60000 * 10
+    },
+
+    /**
+     * configuration for http requests
+     * @type {Object}
+     */
+    httpRequests: {
+        /**
+         * timeout for http requests
+         * @type {Number}
+         */
+        timeout: 10000
+    }
 
 };
 

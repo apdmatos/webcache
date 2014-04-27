@@ -1,6 +1,3 @@
-
-
-// processors
 var loadScriptProcessor 	= require('../loadScriptProcessor')					,
 	previewProcessor 		= require('../previewProcessor')					,
 	absoluteUriProcessor 	= require('../absoluteUriProcessor')				,
@@ -159,7 +156,7 @@ var factories = {
  *       },
  *       'downloader'
  *   ]
- * @param  {Store} store     to save pages into
+ * @param  {Store} 			 store     to save pages into
  * @return {Processor}       A processor
  */
 module.exports = function(processorStructure, store) {

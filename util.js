@@ -196,6 +196,37 @@ module.exports = {
         for (var elem in obj) {
             return elem;
         }
+    },
+
+    /**
+     * [timeout description]
+     * @param  {Function?}  callback        A callback to be execute in case of success
+     * @param  {Function?}  timeoutCallback A callback to be executed in case of timeout
+     * @param  {int?}       timeout         The default timeout value
+     * @return {Function} a function with a default time to be executed
+     */
+    timeout: function(callback, timeoutCallback, timeout) {
+        
+        // default values
+        timeout = timeout ? timeout : 5000;
+        callback = this.callbackWrapper(callback);
+        timeoutCallback = this.callbackWrapper(timeoutCallback);
+
+        var timedout = false;
+        var id = setTimeout(function() {
+            timedout = true;
+            timeoutCallback();
+        }, timeout);
+
+        return function() {
+            // if the timeout occurred, do nothing
+            if(timedout){
+                return;
+            }
+
+            clearTimeout(id);
+            callback.apply(this, arguments);
+        };
     }
 
 
