@@ -1,9 +1,9 @@
-
-// store dependencies
-var urlMod  = require('url')        ,
-    utils   = require('./../util')  ,
-    path    = require('path')       ,
-    fs      = require('fs')         ;
+var urlMod  = require('url')            ,
+    utils   = require('./../util')      ,
+    path    = require('path')           ,
+    fs      = require('fs')             ,
+    logger  = require('../../logger')   ,
+    RSVP    = require('rsvp')           ;
 
 /**
  * Constructor
@@ -13,25 +13,23 @@ function filestore(config) {
     this.config = config;
 }
 
-
 filestore.prototype = {
 
     /**
      * Saves the page preview on disk
-     * @param  {Buffer}      buffer
-     * @param  {StoreData}   storedata The state for store
-     * @param  {Function}    done      Function to call when it's done
+     * @param   {Buffer}      buffer
+     * @param   {StoreData}   storedata The state for store
+     * @returns {Promise}
      */
-    saveWebsitePreview: function(buffer, storedata, done) {
-        console.log(storedata.toString());
-        privateFuncs.saveFile(
+    saveWebsitePreview: function(buffer, storedata) {
+        logger.info('saving website preview.', storedata.toString());
+        return privateFuncs.saveFile(
             this.config,
             storedata, 
             null, 
             this.config.previewWebsiteFile, 
             buffer, 
-            'binary',
-            done
+            'binary'
         );
     },
 
@@ -39,17 +37,17 @@ filestore.prototype = {
      * Saves the page HTML on disk
      * @param  {String}      html
      * @param  {StoreData}   storedata The state for store
-     * @param  {Function}    done      Function to call when it's done
+     * @returns {Promise}
      */
     saveHtmlPage: function(html, storedata, done) {
-        privateFuncs.saveFile(
+        logger.info('saving html page.', storedata.toString());
+        return privateFuncs.saveFile(
             this.config, 
             storedata, 
             null, 
             this.config.htmlFile, 
             html, 
-            'utf8',
-            done
+            'utf8'
         );
     },
 
@@ -58,17 +56,17 @@ filestore.prototype = {
      * @param  {Buffer}      buffer
      * @param  {StoreData}   storedata The state for store
      * @param  {filename}    filename  the name for the file on disk
-     * @param  {Function}    done      Function to call when it's done
+     * @returns {Promise}
      */
-    saveImage: function(buffer, storedata, filename, done) {
-        privateFuncs.saveFile(
+    saveImage: function(buffer, storedata, filename) {
+        logger.info('saving image with name ', fileName, storedata.toString());
+        return privateFuncs.saveFile(
             this.config, 
             storedata, 
             this.getImagesRelativePath(), 
             filename, 
             buffer, 
-            'binary',
-            done
+            'binary'
         );
     },
 
@@ -77,17 +75,17 @@ filestore.prototype = {
      * @param  {String}      buffer
      * @param  {StoreData}   storedata The state for store
      * @param  {filename}    filename  the name for the file on disk
-     * @param  {Function}    done      Function to call when it's done
+     * @returns {Promise}
      */
-    saveCss: function(buffer, storedata, filename, done) {
-        privateFuncs.saveFile(
+    saveCss: function(buffer, storedata, filename) {
+        logger.info('saving css file ', fileName, storedata.toString());
+        return privateFuncs.saveFile(
             this.config, 
             storedata, 
             this.getCSSRelativePath(), 
             filename, 
             buffer, 
-            'utf8',
-            done
+            'utf8'
         );
     },
 
@@ -96,10 +94,11 @@ filestore.prototype = {
      * @param  {String}      buffer
      * @param  {StoreData}   storedata The state for store
      * @param  {filename}    filename  the name for the file on disk
-     * @param  {Function}    done      Function to call when it's done
+     * @returns {Promise}
      */
-    saveJs: function(buffer, storedata, filename, done) {
-        privateFuncs.saveFile(
+    saveJs: function(buffer, storedata, filename) {
+        logger.info('saving js file ', fileName, storedata.toString());
+        return privateFuncs.saveFile(
             this.config, 
             storedata, 
             this.getJSRelativePath(), 
@@ -171,6 +170,10 @@ var privateFuncs = {
 
             });
         });
+    },
+
+    createDirectoryHierarchy: function() {
+        // TODO: ...
     },
 
     /**

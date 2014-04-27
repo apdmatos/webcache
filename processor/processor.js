@@ -1,5 +1,7 @@
-var utils           = require('./../util')      ,
-    processorData   = require('./data/processorData');
+var utils           = require('./../util')              ,
+    processorData   = require('./data/processorData')   ,
+    RSVP            = require('rsvp')                   ,
+    logger          = require('../logger')                 ;
 
 
 /**
@@ -7,11 +9,12 @@ var utils           = require('./../util')      ,
  * Processor constructor
  * @param  {[Processor]} nextProcessor
  * @param  {[Store]} store
+ * @param  {[webAssetsClient]} webAssetsClient
  */
-function processor(nextProcessor, store) {
-
-    this.nextProcessor  = nextProcessor;
-    this.store          = store;
+function processor(nextProcessor, store, webAssetsClient) {
+    this.nextProcessor      = nextProcessor;
+    this.store              = store;
+    this.webAssetsClient    = webAssetsClient;
 }
 
 
@@ -20,51 +23,47 @@ utils.extend(processor.prototype, {
     /**
      * Process the document content
      * @param  {[String]}           url
-     * @param  {[Engine]}           engine
      * @param  {[PantomPage]}       page
      * @param  {[ProcessorData]}    state
-     * @param  {Function}           done
-     * @return {[ProcessorData]} if the state parameter is null, creates a new one
+     * @return {Promise[ProcessorData]}
      */
-    process: function(url, engine, page, state, done) {
-
-        if (!state) {
-
-            state = new processorData.create(url);
-
-        }
-
-        return state;
+    process: function(url page, state) {
+        // Abstract method that should be implemented on each specific class
     },
 
     /**
      * Should undo all the work done by @process methid
      * @param  {[String]}           url
-     * @param  {[Engine]}           engine
      * @param  {[PantomPage]}       page
      * @param  {[ProcessorData]}    state
-     * @param  {Function}           done
+     * @return  {Promise}
      */
-    compensate: function(url, engine, page, state, done) {
+    compensate: function(url, page, state) {
 
-        // TODO: must be implemented...
+        // TODO: must be implemented
+        // Undo what was done
         
     },
 
     /**
      * Begins the next processor execution
      * @param  {[String]}           url
-     * @param  {[Engine]}           engine
      * @param  {[PantomPage]}       page
      * @param  {[ProcessorData]}    state
-     * @param  {Function}           done
+     * @returns {Promise[ProcessorData]}
      */
-    next: function(url, engine, page, state, done) {
+    next: function(url, page, state) {
+
         if(this.nextProcessor) {
-            this.nextProcessor.process(url, engine, page, state, done);
-        }else {
-            done();
+            logger.info('calling next processor');
+            return this.nextProcessor.process(url, page, state);
         }
+        
+        logger.info('there is no next processor. Just returning...');
+        // return an auto resolved promise
+        return new RSVP.Promise(function(resolve, reject){
+            resolve(state);  
+        });
     }
 });
 

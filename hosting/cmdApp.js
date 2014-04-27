@@ -1,8 +1,10 @@
 var phantomPool		= require('../infrastructure/phantomJsProcessPool') ,
 	webAssetsClient	= require('../infrastructure/webAssetsClient')		,
+	crawlerDecisor  = request('../infrastructure/crawlerDecisor')		,
 	store 			= require('../store/filesystem/filestore')			,
 	config 			= require('../config')								,
 	factory			= require('../processor/factory/processorFactory')	,
+	processorData	= require('../processor/data/processorData')		,
 	utils			= require('../util')								,
 	RSVP			= request('rsvp')									,
 	logger			= request('./logger')								;
@@ -31,12 +33,21 @@ var store 		= new store(config)											,
 	processor 	= factory(config.defaultProcessorConfig, store)				,
 	phantomPool = new phantomPool(
 					  config.phantomJSProcessPool.maxPoolSize
-				    , config.phantomJSProcessPool.poolWatingTimeout)		;
+				    , config.phantomJSProcessPool.poolWatingTimeout)		,
+	decisor 	= new crawlerDecisor(config.basePath)						;
 
 var promises = [];
 for(var i = 0, len = urls.length; i < len; ++i) {
+	var url = urls[i];
 
-    promises.push(phantomPool.execute(processor));
+	logger.info('generating state data to process the url ', url);
+	var promise = decisor.generatePageLocation(url)
+		.then(function(location) {
+			var state = processorData.create(url, location);
+    		return phantomPool.execute(processor);
+		});
+
+	promises.push(promise);
 }
 
 RSVP.all(promises)

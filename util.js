@@ -66,7 +66,7 @@ module.exports = {
         return function() {
             if(callback) {
                 var parameters = params ? params : arguments;
-                callback.apply(context, parameters);
+                return callback.apply(context, parameters);
             }
         }
     },

@@ -1,9 +1,8 @@
-
-// processor dependencies
-var utils           = require('./../util')  ,
-    baseProcessor   = require('./processor'),
-    util            = require('util')       ,
-    utils           = require('./../util')  ;
+var baseProcessor   = require('./processor')    ,
+    util            = require('util')           ,
+    utils           = require('./../util')      ,
+    RSVP            = require('rsvp')           ,
+    logger          = require('../logger')      ;
 
 
 /**
@@ -11,11 +10,11 @@ var utils           = require('./../util')  ,
  * Gets a pages's print screen and stores it locally
  * @param  {[Processor]} nextProcessor
  * @param  {[Store]} store
+ * @param  {[webAssetsClient]} webAssetsClient
  */
-function previewProcessor(nextProcessor, store) {
+function previewProcessor(nextProcessor, store, webAssetsClient) {
     // call base constructor
-    baseProcessor.apply(this, [nextProcessor, store]);
-
+    baseProcessor.apply(this, [nextProcessor, store, webAssetsClient]);
 };
 
 util.inherits(previewProcessor, baseProcessor);
@@ -23,30 +22,44 @@ utils.extend(previewProcessor.prototype, {
 
     /**
      * Process the document content
-     * @param  {[String]}           url
-     * @param  {[Engine]}           engine
      * @param  {[PantomPage]}       page
      * @param  {[ProcessorData]}    state
-     * @param  {Function}           done
-     * @return {[ProcessorData]} if the state parameter is null, creates a new one
-     */
-    process: function(url, engine, page, state, done) {
-
-        console.log('preview processor...');
+     * @return {Promise[ProcessorData]}
+     */    
+    process: function(page, state) {
+        
+        baseProcessor.prototype.process.apply(this, arguments);
 
         var self = this;
-        // base.process
-        state = baseProcessor.prototype.process.apply(this, arguments);
+        logger.info('executing preview processor for url ', state.url);
+        
+        return new RSVP.Promise(function(resolve, reject){
+            logger.info('rendering page url ", state.url, " base64');
 
-        var callback = utils.callbackWrapper(this.next, this, [url, engine, page, state, done]);
-        console.log('rendering image to base64...');
-        page.renderBase64('png',function(err, imagedata){
-            console.log('rendered image to base64. Saving...');
-            var buffer = new Buffer(imagedata, 'base64');
-            self.store.saveWebsitePreview(buffer, state.storedata, callback);
+            page.renderBase64('png',function(err, imagedata){
+                if(err) {
+                    logger.error('error while rendering page', state.url, ' image to base64. Error: ', err);
+                    reject(err);
+                    return;
+                }
+
+                console.info('rendered page image', state.url, ' to base64. Saving...');
+                var buffer = new Buffer(imagedata, 'base64');
+                
+                // save image on the store                
+                self.store.saveWebsitePreview(buffer, state.storedata)
+                    .then(function() {
+                        return self.next(page, state);
+                    })
+                    .then(function() {
+                        resolve(state);
+                    })
+                    .catch(function(error) {
+                        reject(error);
+                    });
+                
+            });
         });
-
-        return state;
     }
 });
 

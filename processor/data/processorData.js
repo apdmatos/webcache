@@ -1,19 +1,15 @@
-
-
-// dependencies
-var storedata = require('./../store/storedata')                ,
-	selectors = require('./../pageSelectors/pageSelectors')    ;
+var storedata = require('./../store/storedata')                ;
 
 
 /**
  * Represents the processor data object
- * @param  {[type]} storedata
- * @param  {[type]} websiteConfig
+ * @param  {[String]} pageUrl
+ * @param  {storeData} storedata
  */
-function processorData(storedata, websiteConfig) {
+function processorData(pageUrl, storedata) {
 
+    this.pageUrl = pageUrl;
     this.storedata = storedata;
-    this.websiteconfig = websiteConfig;
 
 }
 
@@ -25,12 +21,10 @@ module.exports = {
 	 * @param  {[type]} url [description]
 	 * @return {[type]}     [description]
 	 */
-    create: function(url) {
+    create: function(url, location) {
 
-        var storeData = new storedata(url);
-        var websiteConfig = selectors.create(url);
-
-        return new processorData(storeData, websiteConfig);
+        var storeData = new storedata(url, location);
+        return new processorData(url, storeData);
     }
 
 };

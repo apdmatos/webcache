@@ -1,17 +1,10 @@
-
-
 var utils = require('./../util');
 
 
-module.exports = function(url) {
-
+module.exports = function(url, location) {
     this.url = url;
-
-    this.dirPath;
-
-    this.relativePath;
-
-    this.guid = utils.newGuid();
+    this.location = location;
+    this.created = false;
 };
 
 
@@ -20,9 +13,7 @@ module.exports.prototype = {
     toString: function() {
 
         return "url: " + this.url +
-            "\ndirPath: " + this.dirPath +
-            "\nrelativePath: " + this.relativePath +
-            "\nguid: " + this.guid;
+            "\location: " + this.location;
     }
 
 }
