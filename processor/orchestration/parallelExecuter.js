@@ -18,7 +18,7 @@ var baseProcessor = require('../processor') ,
 function parallelExecutor(nextProcessor, store, processors) {
 
     baseProcessor.apply(this, [nextProcessor, store]);
-	this.processors = processors;
+    this.processors = processors;
 
 }
 util.inherits(parallelExecutor, baseProcessor);
@@ -34,7 +34,7 @@ utils.extend(parallelExecutor.prototype, {
      * @param  {Function}           done
      * @return {[ProcessorData]} if the state parameter is null, creates a new one
      */
-	process: function(url, engine, page, state, done) {
+    process: function(url, engine, page, state, done) {
         console.log('parallel executor processor...');
 
         // base.process
@@ -55,7 +55,7 @@ utils.extend(parallelExecutor.prototype, {
             processor.process(url, engine, page, state, fn);
         }
 
-	}
+    }
 
 });
 

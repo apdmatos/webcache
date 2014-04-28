@@ -8,16 +8,16 @@
 function posProcessor() { }
 posProcessor.prototype = {
 
-	/**
-	 * Process data file
-	 * @param  {String}   file
-	 * @param  {RegexPosProcessorData}   posProcessorData
-	 * @param  {Function} done - to be called when done
-	 * @return {void}
-	 */
+    /**
+     * Process data file
+     * @param  {String}   file
+     * @param  {RegexPosProcessorData}   posProcessorData
+     * @param  {Function} done - to be called when done
+     * @return {void}
+     */
     process: function(file, posProcessorData, done) {
-    	/* Must be implemented by each specific class */
-	}
+        /* Must be implemented by each specific class */
+    }
 
 };
 

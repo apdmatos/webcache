@@ -7,14 +7,14 @@
  */
 var formatters = {
 
-	/**
-	 * parses the parameter to be used as a string parameter to passed into a function
-	 * @param  {String} param 
-	 * @return {String} A new string with ''
-	 */
-	string: function(param) {
-		return "'" + param + "'";
-	}
+    /**
+     * parses the parameter to be used as a string parameter to passed into a function
+     * @param  {String} param 
+     * @return {String} A new string with ''
+     */
+    string: function(param) {
+        return "'" + param + "'";
+    }
 
 };
 
@@ -28,24 +28,24 @@ var formatters = {
  */
 module.exports = function (func, args) {
 
-	var params = "(";
-	if(args) {
-	    for(var i = 0, len = args.length; i < len; ++i) {
+    var params = "(";
+    if(args) {
+        for(var i = 0, len = args.length; i < len; ++i) {
 
-	    	var param = args[i];
-	    	var formatter = formatters[typeof(param)];
-	    	if(!formatter) throw "No formatter defined for type " + typeof(param);
+            var param = args[i];
+            var formatter = formatters[typeof(param)];
+            if(!formatter) throw "No formatter defined for type " + typeof(param);
 
-	    	params += formatter(param) + ',';
-	    }
+            params += formatter(param) + ',';
+        }
 
-	    // remove the last ',' character
-	    params = params.substring(0, params.length - 1);
-	}
+        // remove the last ',' character
+        params = params.substring(0, params.length - 1);
+    }
 
     params += ")";
-	
+    
 
-	// when this function executes ww'll get the results from the browser
-	return new Function("return " + func.toString() + params);
+    // when this function executes ww'll get the results from the browser
+    return new Function("return " + func.toString() + params);
 }

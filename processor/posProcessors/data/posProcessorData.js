@@ -9,11 +9,11 @@
  * @param  {ProcessorData} state
  */
 function posProcessorData(processor, state, baseUrl, relPath, engine) {
-	this.processor 		= processor;
-	this.processorState = state;
-	this.baseUrl 		= baseUrl;
-	this.relPath 		= relPath;
-	this.engine			= engine;
+    this.processor      = processor;
+    this.processorState = state;
+    this.baseUrl        = baseUrl;
+    this.relPath        = relPath;
+    this.engine         = engine;
 }
 
 
@@ -32,7 +32,7 @@ function regexPosProcessorData(processor, state, baseUrl, relPath, engine, regex
     posProcessorData.call(this, processor, state, baseUrl, relPath, engine);
 
     // String[]
-	this.regexps = regexps;
+    this.regexps = regexps;
 }
 regexPosProcessorData.prototype = new posProcessorData;
 
@@ -47,6 +47,6 @@ regexPosProcessorData.prototype = new posProcessorData;
  * ************************************************************************************
  */
 module.exports = {
-	posProcessorData 		: posProcessorData,
-	regexPosProcessorData	: regexPosProcessorData
+    posProcessorData         : posProcessorData,
+    regexPosProcessorData    : regexPosProcessorData
 };
