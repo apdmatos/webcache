@@ -38,31 +38,31 @@ utils.extend(elementDownloaderProcessor.prototype, {
      */
     processElement: function(url, engine, page, state, elemName, elemUrlAttr, done) {
 
-    	var self = this;
-    	var relPath = this.getRelativePath();
-    	page.evaluate(
-    		phantomFunc(processPageElementsOnBrowser, [elemName, elemUrlAttr, relPath]),
-	        function(err, res) {
+        var self = this;
+        var relPath = this.getRelativePath();
+        page.evaluate(
+            phantomFunc(processPageElementsOnBrowser, [elemName, elemUrlAttr, relPath]),
+            function(err, res) {
 
                 var elems = res && res.length ? res.length : 0;
                 console.log('processed ' + elems + ' results');
 
-	            if(err || !res || res.length == 0) {
+                if(err || !res || res.length == 0) {
 
                     if(err) {
                         console.log('error changing urls to download... ', err);
                     }
 
-	            	// in case of an error call the next baseProcessor
-	            	self.next(url, engine, page, state, done);
-	            }
-	            else {
+                    // in case of an error call the next baseProcessor
+                    self.next(url, engine, page, state, done);
+                }
+                else {
                     
-	            	self.downloadFiles(url, res, engine, state, function() {  
-	            		self.next(url, engine, page, state, done);
-	            	});
-	            }
-	        });
+                    self.downloadFiles(url, res, engine, state, function() {  
+                        self.next(url, engine, page, state, done);
+                    });
+                }
+            });
     },
 
     /**
@@ -93,11 +93,11 @@ utils.extend(elementDownloaderProcessor.prototype, {
      * @param  {Function}       downloaCompletedFunc
      */
     downloadAsset: function(baseUrl, urlStruct, engine, state, downloaCompletedFunc) { 
-		var self = this;
-    	engine.getAssetFile(baseUrl, urlStruct.url, self.getEncoding(),
-    		function(data) { // success callback
+        var self = this;
+        engine.getAssetFile(baseUrl, urlStruct.url, self.getEncoding(),
+            function(data) { // success callback
 
-    			// run pre processors
+                // run pre processors
                 if(self.posProcessor) {
                     
                     var absoluteUrl = urlMod.resolve(baseUrl, urlStruct.url);
@@ -123,12 +123,12 @@ utils.extend(elementDownloaderProcessor.prototype, {
                         downloaCompletedFunc(err, urlStruct.url);   
                     });
                 }
-    		}, 
-    		function(error) {
-    			// error callback
-    			downloaCompletedFunc(error, urlStruct.url);	
-    		}
-    	);
+            }, 
+            function(error) {
+                // error callback
+                downloaCompletedFunc(error, urlStruct.url);    
+            }
+        );
     },
 
     /**
@@ -180,7 +180,7 @@ utils.extend(elementDownloaderProcessor.prototype, {
 // JQuery script is already loaded
 function processPageElementsOnBrowser(elementName, elemUrlAttr, localPath) {
 
-	function newGuid() {
+    function newGuid() {
 
         function s4() {
             return Math.floor((1 + Math.random()) * 0x10000)
@@ -192,33 +192,33 @@ function processPageElementsOnBrowser(elementName, elemUrlAttr, localPath) {
                 s4() + '-' + s4() + s4() + s4();
     }
 
-	function generateName(url) {
-		
-		// add the current name with a GUID appended
-		var urlParts = url.split('/'),
+    function generateName(url) {
+        
+        // add the current name with a GUID appended
+        var urlParts = url.split('/'),
             fileName = urlParts[urlParts.length - 1].split('?')[0];
 
-		return newGuid() + fileName;
-	}
+        return newGuid() + fileName;
+    }
 
-	function generateUrl(path, name) {
-		return path + '/' + name;
-	}
+    function generateUrl(path, name) {
+        return path + '/' + name;
+    }
 
-	function urlStruct(url, localUrl, name) {
-		this.url = url;
+    function urlStruct(url, localUrl, name) {
+        this.url = url;
         this.localUrl = localUrl;
-		this.name = name;
-	}
+        this.name = name;
+    }
 
-	return function() {
-		var urls = [];
-		var parsedUrls = {};
+    return function() {
+        var urls = [];
+        var parsedUrls = {};
 
-		// get all elements with the "elementName" on the page
-		$(elementName).each(function() {
-			
-			var url = $(this).attr(elemUrlAttr);
+        // get all elements with the "elementName" on the page
+        $(elementName).each(function() {
+            
+            var url = $(this).attr(elemUrlAttr);
             if(!url) return;
 
             var newUrl;
@@ -246,10 +246,10 @@ function processPageElementsOnBrowser(elementName, elemUrlAttr, localPath) {
 
             // replace the URL on the document
             $(this).attr(elemUrlAttr, newUrl);
-		});
+        });
 
-		return urls;
-	}();
+        return urls;
+    }();
 }
 
 

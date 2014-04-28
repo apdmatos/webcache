@@ -7,13 +7,13 @@ var config = {
      *  The base path to store website information
      *  {String}
      */
-	basePath: '/Users/apdmatos/data',
+    basePath: '/Users/apdmatos/data',
 
     /**
      * The website preview image file name
      * {String}
      */
-	previewWebsiteFile: 'preview.png',
+    previewWebsiteFile: 'preview.png',
 
     /**
      * the main html file name
@@ -97,4 +97,4 @@ var config = {
 
 
 if(module && module.exports)
-	module.exports = config;
+    module.exports = config;

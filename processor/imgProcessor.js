@@ -45,7 +45,7 @@ utils.extend(imgProcessor.prototype, {
      * @return {String} The relative path to set on URL's
      */
     getRelativePath: function() { 
-    	return this.store.getImagesRelativePath();
+        return this.store.getImagesRelativePath();
     },
 
     /**
@@ -64,7 +64,7 @@ utils.extend(imgProcessor.prototype, {
      * @param  {Function}       doneFunc  Function to be executed
      */    
     saveFile: function(data, state, urlStruct, doneFunc) { 
-    	this.store.saveImage(data, state.storedata, urlStruct.name, doneFunc);
+        this.store.saveImage(data, state.storedata, urlStruct.name, doneFunc);
     },
 
     /**

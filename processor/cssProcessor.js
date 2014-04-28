@@ -47,7 +47,7 @@ utils.extend(cssProcessor.prototype, {
      * @return {String} The relative path to set on URL's
      */
     getRelativePath: function() { 
-    	return this.store.getCSSRelativePath();
+        return this.store.getCSSRelativePath();
     },
 
     /**
@@ -66,7 +66,7 @@ utils.extend(cssProcessor.prototype, {
      * @param  {Function}       doneFunc  Function to be executed
      */
     saveFile: function(data, state, urlStruct, doneFunc) { 
-    	this.store.saveCss(data, state.storedata, urlStruct.name, doneFunc);
+        this.store.saveCss(data, state.storedata, urlStruct.name, doneFunc);
     },
 
     /**
