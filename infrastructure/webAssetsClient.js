@@ -57,7 +57,7 @@ function requestAssetTimeout(url, format, timeout) {
             });
 
             res.on('end', function() {
-                logger.info('request ended to the url: ' + url);
+                logger.info('request ended successfully to the url: ' + url);
                 resolve(data);
             });
         });

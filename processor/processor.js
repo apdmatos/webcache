@@ -1,7 +1,7 @@
 var utils           = require('./../util')              ,
     processorData   = require('./data/processorData')   ,
     RSVP            = require('rsvp')                   ,
-    logger          = require('../logger')                 ;
+    logger          = require('../logger')              ;
 
 
 /**

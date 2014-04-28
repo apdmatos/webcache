@@ -1,9 +1,7 @@
-
 var phantom 		= require('node-phantom')					,
 	logger 			= require('../logger')						,
 	fifoContainer 	= require('./containers/fifoContainer')		,
 	RSVP 			= require('rsvp')							;
-
 
 /**
  * A pool implementation that creates new phantom processes
@@ -18,7 +16,6 @@ function phantomJsProcessPool(maxPoolSize, timeout) {
 	this._phantomProcesses 		= [];
 	this._blockedProcessed 		= new fifoContainer();
 }
-
 
 phantomJsProcessPool.prototype = {
 
