@@ -71,7 +71,7 @@ var config = {
          * The max pool size
          * @type {Number}
          */
-        maxSize: 5,
+        maxSize: 1,
 
         /**
          * The process waiting timeout on the pool to be processed

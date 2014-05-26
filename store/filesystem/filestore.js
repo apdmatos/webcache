@@ -3,7 +3,8 @@ var urlMod  = require('url')            ,
     path    = require('path')           ,
     fs      = require('fs')             ,
     logger  = require('../../logger')   ,
-    RSVP    = require('rsvp')           ;
+    RSVP    = require('rsvp')           ,
+    mkpath  = require('mkpath')          ;
 
 /**
  * Constructor
@@ -151,29 +152,40 @@ var privateFuncs = {
      * @param  {[type]} fileName             [description]
      * @param  {[type]} data                 [description]
      * @param  {[type]} format               [description]
-     * @param  {[type]} doneFunc             [description]
-     * @return {[type]}                      [description]
+     * @return {Promise}                     [description]
      */
-    saveFile: function(config, storedata, containingFolderPath, fileName, data, format, doneFunc) {
+    saveFile: function(config, storedata, containingFolderPath, fileName, data, format) {
+        var self = this;
+        return new RSVP.Promise(function(resolve, reject) {
+            self.getDirectoryPath(config, storedata, function(err, dirPath) {
 
-        this.getDirectoryPath(config, storedata, function(dirPath) {
-            // save image file
-            containingFolderPath = containingFolderPath || '';
-            var containingDir = path.join(dirPath, containingFolderPath);
-            
-            // create a containing folder, if necessary (/css, /images and /js)
-            utils.createDirIfDoesNotExist(containingDir, function() {
+                if(err) {
+                    reject(err);
+                }
+
+                // save image file
+                containingFolderPath = containingFolderPath || '';
+                var containingDir = path.join(dirPath, containingFolderPath);
                 
-                var filePath = path.join(containingDir, fileName);
-                console.log('storing file in ' + filePath);
-                fs.writeFile(filePath, data, format, doneFunc);
+                // create a containing folder, if necessary (/css, /images and /js)
+                self.createDirectoryIfNotExists(containingDir, function(err) {
+                    if(err) {
+                        reject(err);
+                    }
 
+                    var filePath = path.join(containingDir, fileName);
+                    logger.info('storing file in ' + filePath);
+                    fs.writeFile(filePath, data, format, function(err) {
+                        if(err) {
+                            reject(err);
+                        }
+
+                        logger.info('stored file ', filePath);
+                        resolve();
+                    });
+                });
             });
         });
-    },
-
-    createDirectoryHierarchy: function() {
-        // TODO: ...
     },
 
     /**
@@ -184,37 +196,37 @@ var privateFuncs = {
      * @return {[type]}             [description]
      */
     getDirectoryPath: function(config, storedata, done) {
-        if(!storedata.dirPath) {
+        if(storedata.created) {
+            done(storedata.location);
+        }
 
-            // create the base website directory
-            var hostname = urlMod.parse(storedata.url).hostname;
-            var dir = path.join(config.basePath, hostname);
+        this.createDirectoryIfNotExists(storedata.location, function(err) {
+            storedata.created = true;
+            done(err, storedata.location)
+        });
+    },
 
-            utils.createDirIfDoesNotExist(dir, function() {
+    createDirectoryIfNotExists: function(dir, done) {
+        
+        fs.exists(dir, function(exists){
+            if(!exists) {
 
-                if(storedata.dirPath) {
-                    done(storedata.dirPath);
-                    return;
-                }
-
-                dir = path.join(dir, storedata.guid);
-
-                utils.createDirIfDoesNotExist(dir, function() {
-                    if(!storedata.dirPath) storedata.dirPath = dir;
-
-                    done(storedata.dirPath);
-
+                //fs.mkdir(dir, function(){ done(true); });
+                mkpath(storedata.location, 0777, function (err) {
+                    if (err) {
+                        logger.error("error creating directory structure. ", dir);
+                        done(err)
+                    } else {
+                        logger.info('Directory structure created. ', dir);
+                        done(null, storedata.location);
+                    }
                 });
 
-            });
-        }else {
-            done(storedata.dirPath);
-        }
+            } else {
+                done(null, storedata.location);
+            }
+        });
     }
 };
-
-
-
-
 
 module.exports = filestore;

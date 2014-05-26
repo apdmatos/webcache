@@ -20,7 +20,7 @@ webAssetsClient.prototype = {
      * @param  {[type]}   baseUrl       [description]
      * @param  {[type]}   relativeUrl   [description]
      * @param  {[type]}   format        [description]
-     * @return {Promise}                That will return 
+     * @return {Promise}                That will return the requested asset file
      */
     getAssetFile: function(baseUrl, relativeUrl, format) {
 

@@ -1,34 +1,8 @@
 
-
-var fs = require('fs');
-
-
-
-
 /**
  * Utility functions to be used on the code
  */
 module.exports = {
-
-    /**
-     * Creates a directory if does not exist yet
-     * @param dir {String} the directory to create if does not exist yet
-     * @param done {Function(Boolean)} function that receives a boolean parameter indication if the directory was created
-     */
-    createDirIfDoesNotExist: function(dir, done) {
-
-        fs.exists(dir, function(exists){
-
-            if(!exists) {
-
-                fs.mkdir(dir, function(){ done(true); });
-
-            } else {
-
-                done(false);
-            }
-        });
-    },
 
     /**
      * @returns {string} a new random guid
