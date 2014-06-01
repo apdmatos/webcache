@@ -39,8 +39,9 @@ module.exports = {
     callbackWrapper: function(callback, context, params) {
         return function() {
             if(callback) {
-                var parameters = params ? params : arguments;
-                return callback.apply(context, parameters);
+                params = params || [];
+                params = params.concat([].slice.call(arguments));
+                return callback.apply(context, params);
             }
         }
     },
