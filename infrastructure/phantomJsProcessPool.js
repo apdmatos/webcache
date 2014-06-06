@@ -42,7 +42,7 @@ phantomJsProcessPool.prototype = {
 
         this._getPhantomProcess()
             .then(function(phantomProcess) {
-                if(phantomProcess.exited) {
+                if(phantomProcess && phantomProcess.exited) {
                     self.process(executor, timeout);
                 }
 
@@ -55,7 +55,7 @@ phantomJsProcessPool.prototype = {
                     // an available process to run this process
                     var waitingPromise = RSVP.defer();
                     self._blockedProcessed.push(waitingPromise);
-                    waitingPromise.then(function(phantomProcess) {
+                    waitingPromise.promise.then(function(phantomProcess) {
                         // executes function with a phantom object in the pool
                         self._runExecutor(url, timeout, executor, phantomProcess, deferred);
                     });
@@ -255,15 +255,16 @@ phantomJsProcessPool.prototype = {
                     error(err);
                     return;
                 }
+                logger.info('Page succesfully created... Opening page for ', url);
                 page.set('viewportSize', defaultPageSize);
                 page.open(url, 
                     function(err,status) {
-                        if(err) {
-                            logger.error('error opening the page ', url);
+                        if(err || status != 'success') {
+                            logger.error('error opening the page ' + url + 'with error ' + err + ' and status ' + status);
                             error(err);
                             return;
                         }
-                        logger.info("page opened ", url);
+                        logger.info("page " + url + " opened with status " + status);
                         success(page);
                     });
             });
