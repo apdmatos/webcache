@@ -1,6 +1,6 @@
 var phantom        = require('node-phantom')               ,
     phantomPageExt = require('./phantomPageExtensions')    ,
-    timeoutFunc    = require('../util').timeout            ;
+    util           = require('../util')                    ;
 
 var defaultRetryCount = 1;
 var defaultTimeout = 10000;
@@ -30,7 +30,7 @@ module.exports = {
                     }
                 } else {
                     var phantomProcess = new PhantomProcessWrapper(ph);
-                    success(null, phantomProcess);
+                    success(phantomProcess);
                 }
             };
 
@@ -50,14 +50,11 @@ module.exports = {
 
 
 
-            phantom.create(timeoutFunc(
+            phantom.create(util.timeout(
                     successCallback,
                     timeoutCallback, 
                     timeout
                 ));
-
-                
-            });
         }
 
         createProcess(0);
@@ -117,7 +114,7 @@ PhantomProcessWrapper.prototype = {
                 if(retry == retryCount) {
                     callback('timeout creating phantom process after ' + retry + ' retries.');
                 }else {
-                    createProcess(retry + 1);
+                    createPhantomPage(retry + 1);
                 }
             }
 
@@ -128,7 +125,7 @@ PhantomProcessWrapper.prototype = {
             }
 
             phantomProcess.createPage(
-                timeoutFunc(successCallback, timeoutCallback, timeout, disposeCallback));
+                util.timeout(successCallback, timeoutCallback, timeout, disposeCallback));
         }
 
         createPhantomPage(0);

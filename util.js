@@ -187,9 +187,14 @@ module.exports = {
         timeout = timeout ? timeout : 5000;
         callback = this.callbackWrapper(callback);
         timeoutCallback = this.callbackWrapper(timeoutCallback);
+        disposeFunc = this.callbackWrapper(disposeFunc);
 
+        var ignoreTimeout = false;
         var timedout = false;
         var id = setTimeout(function() {
+            if(ignoreTimeout) {
+                return;
+            }
             timedout = true;
             timeoutCallback();
         }, timeout);
@@ -202,7 +207,8 @@ module.exports = {
                 }
                 return;
             }
-
+            
+            ignoreTimeout = true;
             clearTimeout(id);
             callback.apply(this, arguments);
         };

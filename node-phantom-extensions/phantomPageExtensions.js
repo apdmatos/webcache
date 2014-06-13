@@ -1,5 +1,5 @@
 var phantom        = require('node-phantom')               ,
-    timeoutFunc    = require('../util').timeout            ;
+    util           = require('../util')                    ;
 
 
 var defaultRetryCount = 1;
@@ -53,13 +53,13 @@ PhantomPageWrapper.prototype = {
                     phantomPage.close();
                     callback('timeout opening the page for url ' + url + ' after a number of ' + retry + ' retries.', null, self);
                 }else {
-                    createProcess(retry + 1);
+                    openPhantomPage(retry + 1);
                 }
             }
 
             phantomPage.open(
                 url
-                , timeoutFunc(successCallback, timeoutCallback, timeout));
+                , util.timeout(successCallback, timeoutCallback, timeout));
         }
 
         openPhantomPage(0);
@@ -120,4 +120,4 @@ PhantomPageWrapper.prototype = {
 };
 
 
-module.exports = PhantomPageExtensions;
+module.exports = PhantomPageWrapper;
