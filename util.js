@@ -178,9 +178,10 @@ module.exports = {
      * @param  {Function?}  callback        A callback to be execute in case of success
      * @param  {Function?}  timeoutCallback A callback to be executed in case of timeout
      * @param  {int?}       timeout         The default timeout value
+     * @param  {Function?}  disposeFunc A function to be called if and when the callback applies, after the timeout occures
      * @return {Function} a function with a default time to be executed
      */
-    timeout: function(callback, timeoutCallback, timeout) {
+    timeout: function(callback, timeoutCallback, timeout, disposeFunc) {
         
         // default values
         timeout = timeout ? timeout : 5000;
@@ -196,6 +197,9 @@ module.exports = {
         return function() {
             // if the timeout occurred, do nothing
             if(timedout){
+                if(disposeFunc) {
+                    disposeFunc(this, arguments);
+                }
                 return;
             }
 
