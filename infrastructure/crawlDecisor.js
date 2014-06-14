@@ -28,10 +28,7 @@ crawlDecisor.prototype = {
      * @return {Promise[bool]}     a decision if the page should be crawled or not
      */
     crawl: function() {
-        return new RSVP.Promise(function(resolve, reject){
-            // crawl just a level
-            resolve(false);
-        });
+        return RSVP.Promise.resolve(false);
     }
 };
 

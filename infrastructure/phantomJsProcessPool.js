@@ -1,13 +1,8 @@
-var phantom       = require('node-phantom')               ,
-    logger        = require('../logger')                  ,
-    fifoContainer = require('../containers/fifo')         ,
-    RSVP          = require('rsvp')                       ,
-    utils         = require('../util')                    ;
-
-
-// Constants
-var defaultPageSize = {width: 1024, height: 800};
-
+var phantom       = require('../node-phantom-extensions/phantomProcessExtensions')     ,
+    logger        = require('../logger')                                               ,
+    fifoContainer = require('../containers/fifo')                                      ,
+    RSVP          = require('rsvp')                                                    ,
+    utils         = require('../util')                                                 ;
 
 /**
  * A pool implementation that creates new phantom processes
@@ -43,7 +38,7 @@ phantomJsProcessPool.prototype = {
         this._getPhantomProcess()
             .then(function(phantomProcess) {
                 if(phantomProcess && phantomProcess.exited) {
-                    self.process(executor, timeout);
+                    self.process(url, executor, timeout);
                 }
 
                 if(phantomProcess) {
@@ -51,18 +46,28 @@ phantomJsProcessPool.prototype = {
                     self._runExecutor(url, timeout, executor, phantomProcess, deferred);
                 } else {
                     
+                    logger.info('process for url ' + url + ' is being blocked waiting for a phantom process');
+
                     // there is no phantom process available. let's block until there is
                     // an available process to run this process
                     var waitingPromise = RSVP.defer();
                     self._blockedProcessed.push(waitingPromise);
                     waitingPromise.promise.then(function(phantomProcess) {
-                        // executes function with a phantom object in the pool
-                        self._runExecutor(url, timeout, executor, phantomProcess, deferred);
+
+                        logger.info('unblocked process for url: ', url);
+                        self.process(url, executor, timeout);
                     });
                 }
             })
             .catch(function(err) {
-                logger.error('an error occurred processing the executer for url: ' + url + ' with error: ' + err);
+                logger.error('an error occurred processing the executer for url: ' + url);
+                if(err) {
+                    logger.error(err);
+                    if(err.stack) {
+                        logger.error(err.stack);    
+                    }
+                }
+
                 deferred.reject(err);
             });
 
@@ -118,49 +123,57 @@ phantomJsProcessPool.prototype = {
         retries = retries || 0;
         if(retries > this.maxRetries) {
             logger.error('could not open page ', url);
-            completePromise.reject(error);
+            completePromise.reject('could not open page ' + url);
+
+            // unblock a possible blocked executor...
+            self.unblockExecutor();
             return;
         }
 
         function openPageExecutor() {
-            self._createPhantomPage(url, timeout, phantomProcess, function(phantomPage) {
-                // executes function with a phantom object in the pool
-                executor(phantomPage)
-                    .then(function() {
-                        // success
-                        completePromise.resolve();
-                    })
-                    .catch(function(error) {
-                        logger.error('executor completed with error.', error);
-                        completePromise.reject(error);
-                    })
-                    .finally(function() {
 
-                        // close the page
-                        phantomPage.close();
+            logger.info('trying to open page for url ' + url + ' retry number ' + retries);
+            phantomProcess.openPage(
+                function(page) {
 
-                        // add the phantom process back to the queue
-                        logger.info('checking if there is an executor waiting for a phantom process');
-                        var blockedExecutor = self._getBlockedExecutor();
-                        if(blockedExecutor != null) {
-                            logger.info('unblocking an executor, with the phantom process');
-                            blockedExecutor.resolve(phantomProcess);
-                        } else {
-                            if(phantomProcess.exited) {
-                                logger.info('No blocked executors found, adding the phantom process back to the queue');
+                    logger.info('page successfully opened for url ' + url);
+
+                    // executes function with a phantom object in the pool
+                    executor(url, page)
+                        .then(function() {
+                            logger.info('executor for url ' + url + ' has successfully completed');
+                            completePromise.resolve();
+                        })
+                        .catch(function(error) {
+                            logger.error('executor completed with error for url ' + url, error);
+                            if(error.stack) logger.error(error.stack);
+                            completePromise.reject(error);
+                        })
+                        .finally(function() {
+
+                            // close the page
+                            page.close();
+
+                            // add the phantom process back to the queue
+                            if(!phantomProcess.exited) {
                                 self._availablePhantomProcesses.push(phantomProcess);
                             }
-                        }
-                    });
-            }, 
-            function() { 
-                // cannot open page url: 
-                logger.error('error opening page ', url);
 
-                // discard phantom process
-                phantomProcess.exit();
-                self._runExecutor(url, timeout, executor, null, completePromise, ++retries);
-            });
+                            // notify another process to start
+                            self.unblockExecutor();
+                        });
+                }
+                , function(reason) {
+                    // cannot open page url: 
+                    logger.error('error opening page ', url);
+
+                    // discard phantom process
+                    phantomProcess.exit();
+                    self._runExecutor(url, timeout, executor, null, completePromise, ++retries);
+                }
+                , url
+                , timeout
+                , this.maxRetries);
         }
 
 
@@ -184,6 +197,13 @@ phantomJsProcessPool.prototype = {
 
         var self = this;
         return new RSVP.Promise(function(resolve, reject) {
+            
+            logger.info('-------------------------------------------------------------------');
+            logger.info('availablePhantomProcesses: ' + self._availablePhantomProcesses.length);
+            logger.info('phantomProcesses: ' + self._phantomProcesses.length);
+            logger.info('poolSize: ' + self.poolSize);
+            logger.info('maxPoolSize: ' + self.maxPoolSize);
+
             if(self._availablePhantomProcesses.length > 0) {
                 
                 logger.info('getting phantom process to process a webpage');
@@ -203,32 +223,23 @@ phantomJsProcessPool.prototype = {
             logger.info('No available phantom processes, but the pool has not reached the max size yet. Creating a phantom process...');
             ++self.poolSize;
 
-            var retries = 0;
-            function createPhantomProcess() {
-                if(retries > self.maxRetries){
-                    --self.poolSize;
-                    reject();
-                }
+            self._createPhantomProcess(resolve, function(reason) {
+                --self.poolSize;
+                reject(reason); 
 
-                self._createPhantomProcess(resolve, function() {
-                    ++ retries;
-                    createPhantomProcess();
-                });    
-            }
-
-            createPhantomProcess();
+                // unblock another process that could be blocked...
+                self.unblockExecutor();
+            });
         });
     },
 
     _createPhantomProcess: function(success, error) {
         var self = this;
-        phantom.create(function(err,ph) {
-            if(err) {
-                logger.error('error creating a new phantom process: ', err);
-                error();
-            } else {
+
+        phantom.createPhantomProcess(
+            function(ph) {
+
                 logger.info('phantomProcess successfully created');
-                success(ph);
 
                 self._phantomProcesses.push(ph);
                 ph.on('error',function() {
@@ -242,36 +253,28 @@ phantomJsProcessPool.prototype = {
                     ph.exited = true;
                     self._removePhantomProcess(ph);
                 });
+
+                success(ph);
             }
-        });
+            , function(reason) { 
+                logger.error('error creating a new phantom process: ', err);
+                --self.poolSize;
+                error(reason);
+              }
+            , self.timeout
+            , self.maxRetries
+        );
     },
 
-    _createPhantomPage: function(url, timeout, phantomProcess, success, error) {
-        logger.info('creating phantom page for ', url);
-        phantomProcess.createPage(
-            function(err, page) {
-                if(err) {
-                    logger.error('error creating the page ', url);
-                    error(err);
-                    return;
-                }
-                logger.info('Page succesfully created... Opening page for ', url);
-                page.set('viewportSize', defaultPageSize);
-                page.open(url, 
-                    function(err,status) {
-                        if(err || status != 'success') {
-                            logger.error('error opening the page ' + url + 'with error ' + err + ' and status ' + status);
-                            error(err);
-                            return;
-                        }
-                        logger.info("page " + url + " opened with status " + status);
-                        success(page);
-                    });
-            });
-    },
-
-    _getBlockedExecutor: function() {
-        return this._blockedProcessed.pop(); 
+    unblockExecutor: function() {
+        logger.info('checking if there is an executor waiting for a phantom process');
+        var executor = this._blockedProcessed.pop(); 
+        if(executor) {
+            logger.info('unblocking an executor...');
+            executor.resolve();
+        } else {
+            logger.info('no executors found to unblock...');
+        }
     }
 };
 

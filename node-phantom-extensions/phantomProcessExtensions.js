@@ -4,6 +4,7 @@ var phantom        = require('node-phantom')               ,
 
 var defaultRetryCount = 1;
 var defaultTimeout = 10000;
+var defaultPageSize = {width: 1024, height: 800};
 
 module.exports = {
     /**
@@ -74,6 +75,28 @@ function PhantomProcessWrapper(phantomProcess) {
 PhantomProcessWrapper.prototype = {
 
     /**
+     * Helper function that creates an opens a page with separated callbacks for success and error
+     * @param  {Function(PhantomPageExtensions)} success
+     * @param  {Function(string)} error
+     * @param  {String} url
+     * @param  {int?} timeout
+     * @param  {int?} retryCount
+     */
+    openPage: function(success, error, url, timeout, retryCount) {
+
+        var callback = function(err, status, page) {
+            if(err) {
+                error(err);
+                return;
+            }
+
+            success(page);
+        };
+
+        this.createPage(callback, timeout, url, retryCount);
+    },
+
+    /**
      * create a phantom process page with a timeout. 
      * Optionally open the page on the given url
      * 
@@ -101,6 +124,7 @@ PhantomProcessWrapper.prototype = {
                     } 
                 }else {
 
+                    page.set('viewportSize', defaultPageSize);
                     var phantomPage = new phantomPageExt(page);
                     if(url) {
                         phantomPage.open(url, callback, timeout, retryCount);
