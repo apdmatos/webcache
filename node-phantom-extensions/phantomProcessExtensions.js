@@ -3,7 +3,7 @@ var phantom        = require('node-phantom')               ,
     util           = require('../util')                    ;
 
 var defaultRetryCount = 1;
-var defaultTimeout = 10000;
+var defaultTimeout = 5000;
 var defaultPageSize = {width: 1024, height: 800};
 
 module.exports = {
