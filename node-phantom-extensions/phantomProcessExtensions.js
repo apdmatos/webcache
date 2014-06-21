@@ -21,7 +21,6 @@ module.exports = {
 
         function createProcess(retry) {
 
-
             var successCallback = function (err, ph) {
                 if(err) {
                     if(retry == retryCount) {
@@ -44,12 +43,10 @@ module.exports = {
             }
 
             var disposeCallback = function(err, ph) {
-                if(!err) {
+                if(ph) {
                     ph.exit();
                 }
             }
-
-
 
             phantom.create(util.timeout(
                     successCallback,

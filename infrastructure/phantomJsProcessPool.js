@@ -35,41 +35,48 @@ phantomJsProcessPool.prototype = {
         var deferred = RSVP.defer(),
             self     = this;        
 
-        this._getPhantomProcess()
-            .then(function(phantomProcess) {
-                if(phantomProcess && phantomProcess.exited) {
-                    self.process(url, executor, timeout);
-                }
+        function processUrl() {
 
-                if(phantomProcess) {
+            self._getPhantomProcess()
+                .then(function(phantomProcess) {
 
-                    self._runExecutor(url, timeout, executor, phantomProcess, deferred);
-                } else {
-                    
-                    logger.info('process for url ' + url + ' is being blocked waiting for a phantom process');
-
-                    // there is no phantom process available. let's block until there is
-                    // an available process to run this process
-                    var waitingPromise = RSVP.defer();
-                    self._blockedProcessed.push(waitingPromise);
-                    waitingPromise.promise.then(function(phantomProcess) {
-
-                        logger.info('unblocked process for url: ', url);
-                        self.process(url, executor, timeout);
-                    });
-                }
-            })
-            .catch(function(err) {
-                logger.error('an error occurred processing the executer for url: ' + url);
-                if(err) {
-                    logger.error(err);
-                    if(err.stack) {
-                        logger.error(err.stack);    
+                    if(phantomProcess && phantomProcess.exited) {
+                        processUrl();
+                        return;
                     }
-                }
 
-                deferred.reject(err);
-            });
+                    if(phantomProcess) {
+
+                        self._runExecutor(url, timeout, executor, phantomProcess, deferred);
+                    } else {
+                        
+                        logger.info('process for url ' + url + ' is being blocked waiting for a phantom process');
+
+                        // there is no phantom process available. let's block until there is
+                        // an available process to run this process
+                        var waitingPromise = RSVP.defer();
+                        self._blockedProcessed.push(waitingPromise);
+                        waitingPromise.promise.then(function(phantomProcess) {
+
+                            logger.info('unblocked process for url: ', url);
+                            processUrl();
+                        });
+                    }
+                })
+                .catch(function(err) {
+                    logger.error('an error occurred processing the executer for url: ' + url);
+                    if(err) {
+                        logger.error(err);
+                        if(err.stack) {
+                            logger.error(err.stack);    
+                        }
+                    }
+
+                    deferred.reject(err);
+                });
+        }
+
+        processUrl();
 
         return deferred.promise;
     },
@@ -86,19 +93,23 @@ phantomJsProcessPool.prototype = {
      * Disposes all the created phantom processes
      * @param  {boolean} force when true, this parameter will destroy even the running processes
      */
-    destroy: function(force) {
+    destroy: function() {
+        logger.info('destroying phantom processes...');
+        logger.info('availablePhantomProcesses: ' + this._availablePhantomProcesses.length);
+        logger.info('phantomProcesses: ' + this._phantomProcesses.length);
+        logger.info('poolSize: ' + this.poolSize);
+        logger.info('maxPoolSize: ' + this.maxPoolSize);
 
         // clean up phantom pools
         for (var i = 0, len = this._phantomProcesses.length; i < len; ++i) {
-            var phantomProcess = this._phantomProcesses[i].exit();
+            logger.info('exiting phantom process with index ' + i);
+            this._phantomProcesses[i].exit();
         }
         this._phantomProcesses          = [];
         this._availablePhantomProcesses = [];
     
         // clean up blocked processes
         this._blockedProcessed          = new fifoContainer();
-
-        // todo: clean up in progress processes
     },
 
     _removePhantomProcess: function(phantomProcess) {
@@ -150,7 +161,6 @@ phantomJsProcessPool.prototype = {
                             completePromise.reject(error);
                         })
                         .finally(function() {
-
                             // close the page
                             page.close();
 
@@ -179,6 +189,7 @@ phantomJsProcessPool.prototype = {
 
         if(phantomProcess == null) {
 
+            logger.info('phantom process is null... creating a new one...');
             this._createPhantomProcess(function(ph) {
                 phantomProcess = ph;
                 openPageExecutor();
@@ -235,7 +246,7 @@ phantomJsProcessPool.prototype = {
 
     _createPhantomProcess: function(success, error) {
         var self = this;
-
+        logger.info('trying to create a phantom process....');
         phantom.createPhantomProcess(
             function(ph) {
 
@@ -258,7 +269,6 @@ phantomJsProcessPool.prototype = {
             }
             , function(reason) { 
                 logger.error('error creating a new phantom process: ', err);
-                --self.poolSize;
                 error(reason);
               }
             , self.timeout

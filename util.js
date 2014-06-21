@@ -199,7 +199,12 @@ module.exports = {
             timeoutCallback();
         }, timeout);
 
+        var callbackRunnedOnce = false;
         return function() {
+            if(callbackRunnedOnce) { return; }
+            callbackRunnedOnce = true;
+            ignoreTimeout = true;
+
             // if the timeout occurred, do nothing
             if(timedout){
                 if(disposeFunc) {
@@ -208,7 +213,6 @@ module.exports = {
                 return;
             }
             
-            ignoreTimeout = true;
             clearTimeout(id);
             callback.apply(this, arguments);
         };

@@ -45,3 +45,6 @@ function getDate() {
 
     return year + '' + month + '' + day;
 }
+
+
+module.exports = crawlDecisor;

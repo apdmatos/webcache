@@ -3,7 +3,7 @@
   "description": "This node program will download webpages and their content, to be executed without website dependencies",
   "author": "André Matos <apdmatos@gmail.com>",
   "dependencies": {
-    "node-phantom": "0.2.x",
+    "node-phantom": "apdmatos/node-phantom",
     "follow-redirects": "0.0.x",
     "winston": "0.x.x",
     "rsvp": "3.x.x",
