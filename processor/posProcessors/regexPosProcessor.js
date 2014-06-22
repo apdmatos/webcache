@@ -1,6 +1,6 @@
-var basePosProcessor = require('./posProcessor'),
-    util             = require('util')          ,
-    utils            = require('./../util')     ;
+var basePosProcessor = require('./posProcessor')    ,
+    util             = require('util')              ,
+    utils            = require('./../../util')      ;
 
 
 

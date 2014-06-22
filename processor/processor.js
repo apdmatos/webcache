@@ -27,7 +27,7 @@ utils.extend(processor.prototype, {
      * @param  {[ProcessorData]}    state
      * @return {Promise[ProcessorData]}
      */
-    process: function(url page, state) {
+    process: function(page, state) {
         // Abstract method that should be implemented on each specific class
     },
 

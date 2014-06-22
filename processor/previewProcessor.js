@@ -31,19 +31,19 @@ utils.extend(previewProcessor.prototype, {
         baseProcessor.prototype.process.apply(this, arguments);
 
         var self = this;
-        logger.info('executing preview processor for url ', state.url);
+        logger.info('executing preview processor for url ', state.pageUrl);
         
         return new RSVP.Promise(function(resolve, reject){
-            logger.info('rendering page url ", state.url, " base64');
+            logger.info('rendering page url ', state.url, ' base64');
 
             page.renderBase64('png',function(err, imagedata){
                 if(err) {
-                    logger.error('error while rendering page', state.url, ' image to base64. Error: ', err);
+                    logger.error('error while rendering page ', state.pageUrl, ' image to base64. Error: ', err);
                     reject(err);
                     return;
                 }
 
-                console.info('rendered page image', state.url, ' to base64. Saving...');
+                console.info('rendered page image', state.pageUrl, ' to base64. Saving...');
                 var buffer = new Buffer(imagedata, 'base64');
                 
                 // save image on the store                

@@ -150,7 +150,7 @@ phantomJsProcessPool.prototype = {
                     logger.info('page successfully opened for url ' + url);
 
                     // executes function with a phantom object in the pool
-                    executor(url, page)
+                    executor(page, url)
                         .then(function() {
                             logger.info('executor for url ' + url + ' has successfully completed');
                             completePromise.resolve();

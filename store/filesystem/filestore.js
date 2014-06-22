@@ -1,10 +1,10 @@
-var urlMod  = require('url')            ,
-    utils   = require('./../util')      ,
-    path    = require('path')           ,
-    fs      = require('fs')             ,
-    logger  = require('../../logger')   ,
-    RSVP    = require('rsvp')           ,
-    mkpath  = require('mkpath')          ;
+var urlMod  = require('url')                ,
+    utils   = require('./../../util')       ,
+    path    = require('path')               ,
+    fs      = require('fs')                 ,
+    logger  = require('../../logger')       ,
+    RSVP    = require('rsvp')               ,
+    mkpath  = require('mkpath')             ;
 
 /**
  * Constructor
@@ -212,18 +212,18 @@ var privateFuncs = {
             if(!exists) {
 
                 //fs.mkdir(dir, function(){ done(true); });
-                mkpath(storedata.location, 0777, function (err) {
+                mkpath(dir, 0777, function (err) {
                     if (err) {
                         logger.error("error creating directory structure. ", dir);
                         done(err)
                     } else {
                         logger.info('Directory structure created. ', dir);
-                        done(null, storedata.location);
+                        done(null, dir);
                     }
                 });
 
             } else {
-                done(null, storedata.location);
+                done(null, dir);
             }
         });
     }

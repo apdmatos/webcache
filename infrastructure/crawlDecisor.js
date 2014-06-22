@@ -1,4 +1,4 @@
-var urlMod  = require('url')        ,
+var urlMod   = require('url')       ,
     RSVP     = require('rsvp')      ,
     path     = require('path')      ;
 
@@ -14,12 +14,13 @@ crawlDecisor.prototype = {
      * @return {Promise[string]}     the page location
      */
     generatePageLocation: function(url) {
+        var self = this;
         return new RSVP.Promise(function(resolve, reject){
-            var hostname = urlMod.parse(storedata.url).hostname;
+            var hostname = urlMod.parse(url).hostname;
             var currDate = getDate();
             
-            var path = path.join(this.basePath, hostname, currDate);
-            resolve(path);
+            var location = path.join(self.basePath, hostname, currDate);
+            resolve(location);
         });
     },
 

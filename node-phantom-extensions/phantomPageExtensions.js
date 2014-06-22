@@ -10,8 +10,10 @@ var defaultTimeout = 10000;
  * Adds some funcionality to it by adding the timeout capability while creating new pages
  * @param {PhantomPage} phantomPage the created page proxy to add functionality to
  */
-function PhantomPageWrapper(phantomPage) {
+function PhantomPageWrapper(phantomPage, maxRetries, timeout) {
     this.phantomPage = phantomPage;
+    this.maxRetries = maxRetries || defaultRetryCount;
+    this.timeout = timeout || defaultTimeout;
 }
 
 PhantomPageWrapper.prototype = {
@@ -24,12 +26,8 @@ PhantomPageWrapper.prototype = {
      * @param  {int?}                  timeout    the timeout to wait for the page to be created.
      * @param  {int?}                  retryCount if it fails, the number of times to retry the page opening
      */
-    open: function(url, callback, timeout, retryCount) {
+    open: function(url, callback) {
 
-        //timeout: function(callback, timeoutCallback, timeout, disposeFunc) {
-        
-        timeout = timeout || defaultTimeout;
-        retryCount = retryCount || defaultRetryCount;
         var phantomPage = this.phantomPage;
         var self = this;
 
@@ -37,11 +35,11 @@ PhantomPageWrapper.prototype = {
 
             var successCallback = function(err, status) {
                 if(err || status != 'success') {
-                    if(retry == retryCount) {
+                    if(retry == self.maxRetries) {
                         phantomPage.close();
                         callback(err, status, self);
                     } else {
-                        createPhantomPage(retry + 1);
+                        openPhantomPage(retry + 1);
                     }
                 } else {
                     callback(err, status, self);
@@ -49,7 +47,7 @@ PhantomPageWrapper.prototype = {
             };
 
             var timeoutCallback = function() {
-                if(retry == retryCount) {
+                if(retry == self.maxRetries) {
                     phantomPage.close();
                     callback('timeout opening the page for url ' + url + ' after a number of ' + retry + ' retries.', null, self);
                 }else {
@@ -59,7 +57,7 @@ PhantomPageWrapper.prototype = {
 
             phantomPage.open(
                 url
-                , util.timeout(successCallback, timeoutCallback, timeout));
+                , util.timeout(successCallback, timeoutCallback, self.timeout));
         }
 
         openPhantomPage(0);
@@ -75,7 +73,37 @@ PhantomPageWrapper.prototype = {
     },
 
     renderBase64: function(extension, callback){
-        this.phantomPage.renderBase64.apply(this.phantomPage, arguments);
+
+        var phantomPage = this.phantomPage;
+        var self = this;
+
+        function renderBase64(retry) {
+
+            var successCallback = function(err, imagedata) {
+                if(err) {
+                    if(retry == self.maxRetries) {
+                        callback(err, imagedata);
+                    } else {
+                        renderBase64(retry + 1);
+                    }
+                } else {
+                    callback(err, imagedata);
+                }
+            };
+
+            var timeoutCallback = function() {
+                if(retry == self.maxRetries) {
+                    callback('timeout rendering page to base64');
+                }else {
+                    renderBase64(retry + 1);
+                }
+            }
+
+            self.phantomPage.renderBase64(extension
+                , util.timeout(successCallback, timeoutCallback, self.timeout));
+        }
+
+        renderBase64(0);
     },
 
     injectJs: function(url, callback){

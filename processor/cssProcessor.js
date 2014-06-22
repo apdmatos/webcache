@@ -6,7 +6,7 @@ var baseProcessor           = require('./elementDownloaderProcessor')           
     util                    = require('util')                                                           ,
     utils                   = require('./../util')                                                      ,
     path                    = require('path')                                                           ,
-    regexPosProcessorData   = require('../posProcessors/data/posProcessorData').regexPosProcessorData   ;
+    regexPosProcessorData   = require('./posProcessors/data/posProcessorData').regexPosProcessorData    ;
 
 
 

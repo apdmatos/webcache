@@ -1,14 +1,14 @@
-var phantomPool     = require('../infrastructure/phantomJsProcessPool') ,
-    webAssetsClient = require('../infrastructure/webAssetsClient')      ,
-    crawlerDecisor  = request('../infrastructure/crawlerDecisor')       ,
-    store           = require('../store/filesystem/filestore')          ,
-    config          = require('../config')                              ,
-    factory         = require('../processor/factory/processorFactory')  ,
-    processorData   = require('../processor/data/processorData')        ,
-    utils           = require('../util')                                ,
-    RSVP            = request('rsvp')                                   ,
-    logger          = request('./logger')                               ;
-
+var phantomPool         = require('../infrastructure/phantomJsProcessPool') ,
+    webAssetsClient     = require('../infrastructure/webAssetsClient')      ,
+    crawlerDecisor      = require('../infrastructure/crawlDecisor')         ;
+    downloadDispatcher  = require('../infrastructure/dispatcher')           ,
+    store               = require('../store/filesystem/filestore')          ,
+    config              = require('../config')                              ,
+    factory             = require('../processor/factory/processorFactory')  ,
+    processorData       = require('../processor/data/processorData')        ,
+    utils               = require('../util')                                ,
+    RSVP                = require('rsvp')                                   ,
+    logger              = require('../logger')                              ;
 
 
 if (process.argv.length <= 2) {
@@ -32,43 +32,34 @@ var store       = new store(config)                                         ,
     request     = new webAssetsClient(config.httpRequests.timeout)          ,
     processor   = factory(config.defaultProcessorConfig, store)             ,
     phantomPool = new phantomPool(
-                      config.phantomJSProcessPool.maxPoolSize
+                      config.phantomJSProcessPool.maxSize
+                    , config.phantomJSProcessPool.maxRetries
                     , config.phantomJSProcessPool.poolWatingTimeout)        ,
-    decisor     = new crawlerDecisor(config.basePath)                       ;
+    decisor     = new crawlerDecisor(config.basePath)                       ,
+    dispatcher  = new downloadDispatcher(phantomPool, processor, decisor)   ;
 
 var promises = [];
 for(var i = 0, len = urls.length; i < len; ++i) {
     var url = urls[i];
 
     logger.info('generating state data to process the url ', url);
-    var promise = decisor.generatePageLocation(url)
-        .then(function(location) {
-            var state = processorData.create(url, location);
-            return phantomPool.execute(processor);
-        });
-
+    var promise = dispatcher.dispatch(url);
+    
     promises.push(promise);
 }
 
-RSVP.all(promises)
-    .then(function(result, error) {
-        if(error) {
-            logger.error('error downloading a webpage.', error);
-        }else {
+RSVP.allSettled(promises)
+    .then(function(results) {
 
-            // TODO: how to handle multiple results with promises?
+        // if(error) {
+        //     logger.error('error downloading a webpage.', error);
+        // }else {
+        //     logger.info('webpages downloaded successfully');
+        // }
 
-            logger.info('webpages downloaded successfully');
-        }
-    })
-    .catch(function(reason) {
-        logger.error('error downloading a webpage. An exception occurred', reason);
-    })
-    .finally(function() {
-        logger.trace('cleanning up all processes');
-
-        logger.trace('destroying phantom pool');
+        logger.info('cleanning up all processes');
+        logger.info('destroying phantom pool');
         phantomPool.destroy();
 
-        logger.trace('all processes successfully destroyed');
+        logger.info('all processes successfully destroyed');
     });

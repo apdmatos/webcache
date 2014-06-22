@@ -74,10 +74,16 @@ var config = {
         maxSize: 1,
 
         /**
+         * In case of an error how many times the open page will be retried
+         * @type {Number}
+         */
+        maxRetries: 1,
+
+        /**
          * The process waiting timeout on the pool to be processed
          * @type {Number}
          */
-        poolWatingTimeout: 60000 * 10
+        poolWatingTimeout: 10000
     },
 
     /**
@@ -90,6 +96,12 @@ var config = {
          * @type {Number}
          */
         timeout: 10000
+    },
+
+    dispatcher: {
+
+        parallelExecutors: 10
+
     }
 
 };

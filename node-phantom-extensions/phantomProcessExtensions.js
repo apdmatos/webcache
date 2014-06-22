@@ -122,9 +122,9 @@ PhantomProcessWrapper.prototype = {
                 }else {
 
                     page.set('viewportSize', defaultPageSize);
-                    var phantomPage = new phantomPageExt(page);
+                    var phantomPage = new phantomPageExt(page, retryCount, timeout);
                     if(url) {
-                        phantomPage.open(url, callback, timeout, retryCount);
+                        phantomPage.open(url, callback);
                     } else {
                         callback(null, phantomPage);
                     }

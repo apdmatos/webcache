@@ -7,7 +7,7 @@ var loadScriptProcessor     = require('../loadScriptProcessor')                ,
     htmlCrawlProcessor      = require('../htmlCrawlProcessor')                 ,
     htmlDownloaderProcessor = require('../htmlDownloaderProcessor')            ,
     parallelProcessor       = require('../orchestration/parallelExecuter')     ,
-    regexPosProcessor       = require('../../posProcessors/regexPosProcessor') ,
+    regexPosProcessor       = require('../posProcessors/regexPosProcessor') ,
     utils                   = require('../../util')                            ;
 
 

@@ -2,7 +2,7 @@
 
 // Processor dependencies
 var baseProcessor       = require('./processor')                                    ,
-    posProcessorData    = require('../posProcessors/data/posProcessorData')         ,
+    posProcessorData    = require('./posProcessors/data/posProcessorData')         ,
     urlMod              = require('url')                                            ,
     util                = require('util')                                           ,
     utils               = require('./../util')                                      ,

@@ -70,7 +70,7 @@ function requestAssetTimeout(url, format, timeout) {
                     logger.warn('timeout getting the url: ' + url);
                     reject('request timed out');
                 });
-            }
+            });
         }
 
         req.on('error', function(e) {
