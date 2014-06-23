@@ -189,7 +189,7 @@ phantomJsProcessPool.prototype = {
 
         if(phantomProcess == null) {
 
-            logger.info('phantom process is null... creating a new one...');
+            logger.info('phantom process is null... creating a new one... for url ' + url);
             this._createPhantomProcess(function(ph) {
                 phantomProcess = ph;
                 openPageExecutor();
@@ -268,7 +268,7 @@ phantomJsProcessPool.prototype = {
                 success(ph);
             }
             , function(reason) { 
-                logger.error('error creating a new phantom process: ', err);
+                logger.error('error creating a new phantom process: ', reason);
                 error(reason);
               }
             , self.timeout
