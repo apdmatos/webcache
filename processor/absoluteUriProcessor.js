@@ -1,10 +1,18 @@
 
-
 // Processor dependencies
 var baseProcessor   = require('./processor')                                    ,
     util            = require('util')                                           ,
     utils           = require('./../util')                                      ,
-    phantomFunc     = require('../node-phantom-extensions/parameterFunction')   ;
+    phantomFunc     = require('../node-phantom-extensions/parameterFunction')   ,
+    RSVP            = require('rsvp')                                           ,
+    logger          = require('../logger')                                      ,
+    _               = require('underscore')                                     ;
+
+
+
+var toAbsolutePathElements = [
+    'a', 'img', 'script', 'link', 'embed'
+];
 
 
 /**
@@ -24,57 +32,55 @@ util.inherits(absoluteUriProcessor, baseProcessor);
 utils.extend(absoluteUriProcessor.prototype, {
 
     /**
-     * Process the document content
-     * @param  {[String]}           url
-     * @param  {[Engine]}           engine
+     * Gets all relative urls from the page and changes it to an absolute url
      * @param  {[PantomPage]}       page
      * @param  {[ProcessorData]}    state
-     * @param  {Function}           done
-     * @return {[ProcessorData]} if the state parameter is null, creates a new one
+     * @return {Promise[ProcessorData]}
      */
-    process: function(url, engine, page, state, done) {
+    process: function(page, state) {
         console.log('absolute uri processor...');
 
         // base.process
         var self = this;
-        state = baseProcessor.prototype.process.apply(this, arguments);
+        baseProcessor.prototype.process.apply(this, arguments);
 
-        function processElements (config) {
-
-            var evaluates = 0;
-
-            var absolutePathElements = config && config.absolutePath;
-            if(absolutePathElements) {
-                for(var i = 0, len = absolutePathElements.length; i < len; ++i) {
-
-                    var tag = absolutePathElements[i];
-
-                    console.log('searching for: ' + tag + ' elements');
-
-                    ++ evaluates;
-
-                    page.evaluate(
-                        phantomFunc(processTagElements, [url, tag]),
-                        function(err, res) {
-                            if(err || !res) console.log('error querying for elements ' + tag, err);
-                            else console.log('tag: ' + res.tag + ' length: ' + res.length);
-
-                            if(--evaluates == 0) self.next(url, engine, page, state, done);
-
-                        });
-
-                }
-            }
+        function processElement (element) {
+            return new RSVP.Promise(function(resolve, reject) {
+                page.evaluate(
+                    phantomFunc(processTagElements, [url, tag]),
+                    function(err, res) {
+                        if(err || !res) {
+                            logger.error('error querying for element ' + tag + 'for page ' + state.pageUrl + 'error: ' + err);
+                            return reject(err);
+                        }
+                        else {
+                            logger.info('tag: ' + res.tag + ' length: ' + res.length);
+                            resolve();
+                        }
+                    });
+            });
         }
 
-        var config = state.websiteconfig.getConfiguration();
-        if(!config) 
-            state.websiteconfig.on('set:config', processElements);
-        else 
-            processElements(config);
+        var promises = [];
+        for (var i = 0, len = toAbsolutePathElements.length; i < len; ++i) {
+            var element = toAbsolutePathElements[i];
+            var promise = processElement(element);
+            promises.push(promise);
+        }
+
+
+        return RSVP.allSettled(promises)
+            .then(function(results) {
+
+                var rejected = _.where(results, { state: 'rejected' });
+                if(rejected) {
+                    var mappedErros = _.map(rejected, function(num, key){ return rejected[num]; });
+                    return RSVP.Promise.reject(mappedErros, 'one or more processors failed processing');
+                }
+
+                return self.next(page, state);
+            });
     }
-
-
 });
 
 

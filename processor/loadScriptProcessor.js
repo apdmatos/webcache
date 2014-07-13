@@ -1,13 +1,13 @@
 
+// processor dependencies
+var baseProcessor   = require('./processor')           ,
+    utils           = require('./../util')              ,
+    util            = require('util')                   ,
+    RSVP            = require('rsvp')                   ,
+    logger          = require('../logger')              ;
 
 
 var JQUERY_SCRIPT_LOCATION = "http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js";
-
-// processor dependencies
-var utils           = require('./../util')              ,
-    baseProcessor   = require('./processor')            ,
-    util            = require('util')                   ,
-    utils           = require('./../util')              ;
 
 
 /**
@@ -26,47 +26,56 @@ util.inherits(loadScriptProcessor, baseProcessor);
 utils.extend(loadScriptProcessor.prototype, {
 
     /**
-     * Process the document content
-     * @param  {[String]}           url
-     * @param  {[Engine]}           engine
+     * Loads a JQuery script to perform queries on the webpage
      * @param  {[PantomPage]}       page
      * @param  {[ProcessorData]}    state
-     * @param  {Function}           done
-     * @return {[ProcessorData]} if the state parameter is null, creates a new one
+     * @return {Promise[ProcessorData]}
      */
-    process: function(url, engine, page, state, done) {
+    process: function(page, state) {
 
-        console.log('load script processor...');
+        logger.info('load script processor for url ', state.pageUrl);
 
         var self = this;
         // base.process
-        state = baseProcessor.prototype.process.apply(this, arguments);
+        baseProcessor.prototype.process.apply(this, arguments);
 
-        var callback = utils.callbackWrapper(this.next, this, [url, engine, page, state, done]);
-        page.evaluate(function () {
-            return JQuery;
-        }, function(err, jquery){
 
-            if(!jquery) {
+        return new RSVP.Promise(function(resolve, reject) {
 
-                console.log('including jquery...');
+            //var callback = utils.callbackWrapper(this.next, this, [url, engine, page, state, done]);
+            page.evaluate(function () {
+                return JQuery;
+            }, function(err, jquery){
 
-                // load jquery in the page
-                page.includeJs(JQUERY_SCRIPT_LOCATION, function(e) {
-                    console.log('script ' + JQUERY_SCRIPT_LOCATION + ' included');
-                    callback();
+                if(err) {
+                    logger.error('error checking for JQuery on page ', state.pageUrl);
+                    return reject(err);
+                }
 
-                });
-            } else {
+                if(!jquery) {
 
-                console.log('jquery already included on the webpage...');
-                callback(); 
+                    logger.info('Including JQuery... JQuery not found on the page ', state.pageUrl);
 
-            }
-            
+                    // load jquery in the page
+                    page.includeJs(JQUERY_SCRIPT_LOCATION, function(e) {
+                        
+                        if(e) {
+                            logger.error('error including JQuery ', state.pageUrl);
+                            return reject(e);
+                        }
+
+                        logger.info('script ' + JQUERY_SCRIPT_LOCATION + ' included on page' + state.pageUrl);
+                        resolve();
+
+                    });
+                } else {
+
+                    logger.info('jquery already included on the webpage ', state.pageUrl);
+                    resolve();
+                }
+                
+            });
         });
-
-        return state;
     }
 });
 

@@ -60,10 +60,9 @@ utils.extend(processor.prototype, {
         }
         
         logger.info('there is no next processor. Just returning...');
+        
         // return an auto resolved promise
-        return new RSVP.Promise(function(resolve, reject){
-            resolve(state);  
-        });
+        return new RSVP.Promise.resolve(state);
     }
 });
 

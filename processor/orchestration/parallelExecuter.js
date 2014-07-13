@@ -1,8 +1,10 @@
 
-var baseProcessor = require('../processor') ,
-    util = require('util')                  ,
-    utils = require('../../util')           ;
-
+var baseProcessor   = require('../processor')   ,
+    RSVP            = require('rsvp')           ,
+    util            = require('util')           ,
+    utils           = require('../../util')     ,
+    logger          = require('../../logger')   ,
+    _               = require('underscore')     ;
 
 /**
  * this is a special processor that allows the execution of multiple processors at the same time
@@ -26,35 +28,41 @@ util.inherits(parallelExecutor, baseProcessor);
 utils.extend(parallelExecutor.prototype, {
 
     /**
-     * Process the document content
-     * @param  {[String]}           url
-     * @param  {[Engine]}           engine
+     * Executes the processors in parallel collecting the processor results
      * @param  {[PantomPage]}       page
      * @param  {[ProcessorData]}    state
-     * @param  {Function}           done
-     * @return {[ProcessorData]} if the state parameter is null, creates a new one
+     * @return {Promise[ProcessorData]}
      */
-    process: function(url, engine, page, state, done) {
-        console.log('parallel executor processor...');
+    process: function(page, state) {
+
+        baseProcessor.prototype.process.apply(this, arguments);
+
+        logger.info('parallel executor processor execution to process url ' + state.pageUrl);
 
         // base.process
         var self = this;
-        state = baseProcessor.prototype.process.apply(this, arguments);
-
-        var next = utils.callbackWrapper(this.next, this, [url, engine, page, state, done]);
-        
-        // variable to count how many processors have completed
-        var waitFn = utils.waitForCallbacks(next, this);
-
-        // execute processors in parallel, synhronizing the result
+        var promises = [];
         for (var i = 0, len = this.processors.length; i < len; ++i) {
-            var fn = waitFn();
+
             var processor = this.processors[i];
 
             // call the processor
-            processor.process(url, engine, page, state, fn);
+            var promise = processor.process(page, state);
+            promises.push(promise);
         }
 
+        // execute processors in parallel, synhronizing the result
+        return RSVP.allSettled(promises)
+            .then(function(results) {
+
+                var rejected = _.where(results, { state: 'rejected' });
+                if(rejected) {
+                    var mappedErros = _.map(rejected, function(num, key){ return rejected[num]; });
+                    return RSVP.Promise.reject(mappedErros, 'one or more processors failed processing');
+                }
+
+                return self.next(page, state);
+            });
     }
 
 });

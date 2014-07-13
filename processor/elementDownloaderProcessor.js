@@ -2,11 +2,13 @@
 
 // Processor dependencies
 var baseProcessor       = require('./processor')                                    ,
-    posProcessorData    = require('./posProcessors/data/posProcessorData')         ,
+    posProcessorData    = require('./posProcessors/data/posProcessorData')          ,
     urlMod              = require('url')                                            ,
     util                = require('util')                                           ,
     utils               = require('./../util')                                      ,
-    phantomFunc         = require('../node-phantom-extensions/parameterFunction')   ;
+    phantomFunc         = require('../node-phantom-extensions/parameterFunction')   ,
+    RSVP                = require('rsvp')                                           ,
+    logger              = require('../logger')                                      ;
 
 /**
  * @Constructor
@@ -28,41 +30,55 @@ utils.extend(elementDownloaderProcessor.prototype, {
     /**
      * @protected
      * protected method that is called from each specific class
-     * @param  {String}         url   
-     * @param  {Engine}         engine
      * @param  {PahntomPage}    page 
      * @param  {ProcessorData}  state
      * @param  {String}         elemName
      * @param  {String}         elemUrlAttr
-     * @param  {Function}       done
+     * returns {Promise}
      */
-    processElement: function(url, engine, page, state, elemName, elemUrlAttr, done) {
+    processElement: function(page, state, elemName, elemUrlAttr) {
 
         var self = this;
         var relPath = this.getRelativePath();
-        page.evaluate(
-            phantomFunc(processPageElementsOnBrowser, [elemName, elemUrlAttr, relPath]),
-            function(err, res) {
 
-                var elems = res && res.length ? res.length : 0;
-                console.log('processed ' + elems + ' results');
+        return new RSVP.Promise(function(resolve, reject) {
+            page.evaluate(
+                phantomFunc(processPageElementsOnBrowser, [elemName, elemUrlAttr, relPath]),
+                function(err, res) {
 
-                if(err || !res || res.length == 0) {
+                    var elems = res && res.length ? res.length : 0;
+                    logger.info('processed ' + elems + ' results for page ' + state.pageUrl);
 
                     if(err) {
-                        console.log('error changing urls to download... ', err);
-                    }
 
-                    // in case of an error call the next baseProcessor
-                    self.next(url, engine, page, state, done);
-                }
-                else {
-                    
-                    self.downloadFiles(url, res, engine, state, function() {  
-                        self.next(url, engine, page, state, done);
-                    });
-                }
-            });
+                        logger.error('error finding ' + elemName + ' on page ' + state.pageUrl + ' error: ' + err);
+                        return reject(err);
+                    }
+                    else {
+                        
+                        if(res && res.length > 0) {
+
+                            self.downloadFiles(res, state)
+                                .then(function() {
+                                    resolve();
+                                }).catch(function(err) {
+                                    logger.error('error downloading ' + elemName + 'elements for page ' + state.pageUrl);
+                                    reject(err);
+                                });
+
+                        } else {
+
+                            // in case of an error call the next baseProcessor
+                            self.next(url, engine)
+                                .then(function() {
+                                    resolve(state);
+                                }).catch(function(err) {
+                                    reject(err);
+                                });
+                        }
+                    }
+                });
+        });
     },
 
     /**
@@ -73,7 +89,7 @@ utils.extend(elementDownloaderProcessor.prototype, {
      * @param  {ProcessorData}  state
      * @param  {Function}       done
      */
-    downloadFiles: function(baseUrl, urls, engine, state, done) {
+    downloadFiles: function(urls, state) {
 
 
         var waitFn = utils.waitForCallbacks(done, this);

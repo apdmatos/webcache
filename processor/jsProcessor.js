@@ -23,20 +23,17 @@ function jsProcessor(nextProcessor, store, regexProcessor) {
 util.inherits(jsProcessor, baseProcessor);
 utils.extend(jsProcessor.prototype, {
 
-    /**
-     * Process the document content
-     * @param  {[String]}           url
-     * @param  {[Engine]}           engine
+     /**
+     * Gets all javascript files on the webpage and downloads them
      * @param  {[PantomPage]}       page
      * @param  {[ProcessorData]}    state
-     * @param  {Function}           done
-     * @return {[ProcessorData]} if the state parameter is null, creates a new one
+     * @return {Promise[ProcessorData]}
      */
-    process: function(url, engine, page, state, done) {
+    process: function(page, state) {
 
         console.log('js processor...');
-        state = baseProcessor.prototype.process.apply(this, arguments);
-        this.processElement(url, engine, page, state, 'script', 'src', done);
+        baseProcessor.prototype.process.apply(this, arguments);
+        return this.processElement(page, state, 'script', 'src');
     },
 
     /**
@@ -60,10 +57,10 @@ utils.extend(jsProcessor.prototype, {
      * @param  {String|Stream}  data      downloaded from the internet
      * @param  {ProcessorData}  state     the state to save the file
      * @param  {UrlStruct[]}    urlStruct containing the file name and the file path
-     * @param  {Function}       doneFunc  Function to be executed
+     * returns {Promise}
      */  
-    saveFile: function(data, state, urlStruct, doneFunc) { 
-        this.store.saveJs(data, state.storedata, urlStruct.name, doneFunc);
+    saveFile: function(data, state, urlStruct) { 
+        return this.store.saveJs(data, state.storedata, urlStruct.name);
     },
 
     /**
@@ -95,13 +92,3 @@ utils.extend(jsProcessor.prototype, {
 
 // exports the processor
 module.exports = jsProcessor;
-
-
-
-
-
-
-
-
-
-

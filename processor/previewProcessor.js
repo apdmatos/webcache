@@ -33,7 +33,7 @@ utils.extend(previewProcessor.prototype, {
         var self = this;
         logger.info('executing preview processor for url ' + state.pageUrl);
         
-        return new RSVP.Promise(function(resolve, reject){
+        return new RSVP.Promise(function(resolve, reject) {
             logger.info('rendering page url ', state.pageUrl, ' base64');
 
             page.renderBase64('png',function(err, imagedata){

@@ -1,4 +1,4 @@
-var storedata = require('./../../store/storedata')                ;
+var storedata = require('./../../store/storedata');
 
 
 /**
