@@ -122,8 +122,38 @@ PhantomPageWrapper.prototype = {
         this.phantomPage.uploadFile.apply(this.phantomPage, arguments);
     },
 
-    evaluate: function(evaluator, callback){
-        this.phantomPage.evaluate.apply(this.phantomPage, arguments);
+    evaluate: function(evaluator, callback) {
+
+        var phantomPage = this.phantomPage;
+        var self = this;
+
+        function evaluate(retry) {
+
+            var successCallback = function(err, result) {
+                if(err) {
+                    if(retry == self.maxRetries) {
+                        callback(err, result);
+                    } else {
+                        evaluate(retry + 1);
+                    }
+                } else {
+                    callback(err, result);
+                }
+            };
+
+            var timeoutCallback = function() {
+                if(retry == self.maxRetries) {
+                    callback('timeout rendering page to base64');
+                }else {
+                    evaluate(retry + 1);
+                }
+            }
+
+            self.phantomPage.evaluate(evaluator
+                , util.timeout(successCallback, timeoutCallback, self.timeout));
+        }
+
+        evaluate(0);
     },
 
     evaluateAsync: function(evaluator, callback){
