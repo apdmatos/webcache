@@ -41,8 +41,8 @@ dispatcher.prototype = {
         return promise;
     },
 
-    _executeProcessor: function(phantomPage, url, state) {
-        return this.processor.process(state, phantomPage);
+    _executeProcessor: function(state, phantomPage) {
+        return this.processor.process(phantomPage, state);
     }
 
 };

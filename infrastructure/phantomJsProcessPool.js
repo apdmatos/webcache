@@ -175,7 +175,12 @@ phantomJsProcessPool.prototype = {
                         // discard phantom process
                         phantomProcess.exit();
                         self._runExecutor(url, timeout, executor, null, completePromise, ++retries);
-                    });
+                    })
+                .catch(function(err) {
+                    logger.error('error processing runExecutor ' + err);
+                    utils.printError(logger, err);
+                    completePromise.reject(err);
+                });
         }
 
 

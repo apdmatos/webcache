@@ -76,7 +76,7 @@ PhantomPageWrapper.prototype = {
             deferred.resolve();
         });
 
-        return deferred;
+        return deferred.promise;
     },
 
     /**
@@ -119,7 +119,7 @@ PhantomPageWrapper.prototype = {
 
         render(0);
 
-        return deferred;
+        return deferred.promise;
     },
 
     /**
@@ -195,7 +195,7 @@ PhantomPageWrapper.prototype = {
 
         injectJS(0);
 
-        return deferred;
+        return deferred.promise;
     },
 
     includeJs: function(url) {
@@ -231,7 +231,7 @@ PhantomPageWrapper.prototype = {
 
         includeJS(0);
 
-        return deferred;
+        return deferred.promise;
     },
 
     sendEvent: function(event, x, y) {
@@ -267,7 +267,7 @@ PhantomPageWrapper.prototype = {
 
         sendEvent(0);
 
-        return deferred;
+        return deferred.promise;
     },
 
     uploadFile: function(selector, filename) {
@@ -303,7 +303,7 @@ PhantomPageWrapper.prototype = {
 
         uploadFile(0);
 
-        return deferred;
+        return deferred.promise;
     },
 
     evaluate: function(evaluator) {
@@ -339,7 +339,7 @@ PhantomPageWrapper.prototype = {
         }
 
         evaluate(0);
-        return deferred;
+        return deferred.promise;
     },
     
     set: function(name, value) {
@@ -353,7 +353,7 @@ PhantomPageWrapper.prototype = {
             deferred.resolve();
         });
 
-        return deferred;
+        return deferred.promise;
     },
 
     get: function(name) {
@@ -368,7 +368,7 @@ PhantomPageWrapper.prototype = {
             deferred.resolve(result);
         });
 
-        return deferred;
+        return deferred.promise;
     },
 
     setViewport: function(viewport) {
@@ -383,7 +383,7 @@ PhantomPageWrapper.prototype = {
             deferred.resolve(); 
         });
 
-        return deferred;
+        return deferred.promise;
     }
 };
 

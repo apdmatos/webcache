@@ -54,7 +54,7 @@ utils.extend(loadScriptProcessor.prototype, {
 
     _jqueryEvaluatorFunc: function() {
         return JQuery;
-    }
+    },
 
     _includeJQueryDecisor: function(page, jquery) {
         
