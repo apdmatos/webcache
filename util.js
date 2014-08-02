@@ -5,6 +5,20 @@
 module.exports = {
 
     /**
+     * prints the error if a stack is present
+     * @param  {Logger} logger 
+     * @param  {Error} err    
+     */
+    printError: function(logger, err) {
+        if(err) {
+            logger.error(err);
+            if(err.stack) {
+                logger.error(err.stack);    
+            }
+        }
+    },
+
+    /**
      * @returns {string} a new random guid
      */
     newGuid: function() {

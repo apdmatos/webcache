@@ -42,7 +42,7 @@ PhantomPageWrapper.prototype = {
                         openPhantomPage(retry + 1);
                     }
                 } else {
-                    deferred.resolve(status, self);
+                    deferred.resolve(self);
                 }
             };
 

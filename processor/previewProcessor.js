@@ -25,41 +25,58 @@ utils.extend(previewProcessor.prototype, {
      * @param  {[PantomPage]}       page
      * @param  {[ProcessorData]}    state
      * @return {Promise[ProcessorData]}
-     */    
+     */
     process: function(page, state) {
         
         baseProcessor.prototype.process.apply(this, arguments);
 
         var self = this;
         logger.info('executing preview processor for url ' + state.pageUrl);
-        
-        return new RSVP.Promise(function(resolve, reject) {
-            logger.info('rendering page url ', state.pageUrl, ' base64');
+        logger.info('rendering page url ', state.pageUrl, ' base64');
 
-            page.renderBase64('png',function(err, imagedata){
-                if(err) {
+        return page.renderBase64('png')
+            .then(
+                // success
+                function(imagedata) {
+                    return self.store.saveWebsitePreview(buffer, state.storedata)
+                },
+                // error
+                function(err) {
                     logger.error('error while rendering page ' + state.pageUrl + ' image to base64. Error: ', err);
                     reject(err);
-                    return;
                 }
-
-                console.info('rendered page image' + state.pageUrl + ' to base64. Saving...');
-                var buffer = new Buffer(imagedata, 'base64');
-                
-                // save image on the store                
-                self.store.saveWebsitePreview(buffer, state.storedata)
-                    .then(function() {
-                        return self.next(page, state);
-                    })
-                    .then(function() {
-                        resolve(state);
-                    })
-                    .catch(function(error) {
-                        reject(error);
-                    });
-                
+            )
+            .then(function() {
+                return self.next(page, state);
             });
-        });
+
+        // return new RSVP.Promise(function(resolve, reject) {
+        //     logger.info('rendering page url ', state.pageUrl, ' base64');
+
+        //     page.renderBase64('png',function(err, imagedata){
+        //         if(err) {
+        //             logger.error('error while rendering page ' + state.pageUrl + ' image to base64. Error: ', err);
+        //             reject(err);
+        //             return;
+        //         }
+
+        //         console.info('rendered page image' + state.pageUrl + ' to base64. Saving...');
+        //         var buffer = new Buffer(imagedata, 'base64');
+                
+        //         // save image on the store                
+        //         self.store.saveWebsitePreview(buffer, state.storedata)
+        //             .then(function() {
+        //                 return self.next(page, state);
+        //             })
+        //             .then(function() {
+        //                 resolve(state);
+        //             })
+        //             .catch(function(error) {
+        //                 reject(error);
+        //             });
+                
+        //     });
+        // });
     }
 });
 

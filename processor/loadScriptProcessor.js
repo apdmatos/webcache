@@ -40,42 +40,45 @@ utils.extend(loadScriptProcessor.prototype, {
         baseProcessor.prototype.process.apply(this, arguments);
 
 
-        return new RSVP.Promise(function(resolve, reject) {
-
-            //var callback = utils.callbackWrapper(this.next, this, [url, engine, page, state, done]);
-            page.evaluate(function () {
-                return JQuery;
-            }, function(err, jquery){
-
-                if(err) {
+        return page.evaluate(self._jqueryEvaluatorFunc)
+            .then(
+                function(jquery) {
+                    return self._includeJQueryDecisor(page, jquery);
+                }
+                // error
+                , function(err) {
                     logger.error('error checking for JQuery on page ', state.pageUrl);
-                    return reject(err);
-                }
+                    return RSVP.Promise.reject(err);
+                });
+    },
 
-                if(!jquery) {
+    _jqueryEvaluatorFunc: function() {
+        return JQuery;
+    }
 
-                    logger.info('Including JQuery... JQuery not found on the page ', state.pageUrl);
+    _includeJQueryDecisor: function(page, jquery) {
+        
+        if(!jquery) {
 
-                    // load jquery in the page
-                    page.includeJs(JQUERY_SCRIPT_LOCATION, function(e) {
-                        
-                        if(e) {
-                            logger.error('error including JQuery ', state.pageUrl);
-                            return reject(e);
-                        }
+            logger.info('Including JQuery... JQuery not found on the page ', state.pageUrl);
 
+            // load jquery in the page
+            return page.includeJs(JQUERY_SCRIPT_LOCATION)
+                .then(
+                    function() {
                         logger.info('script ' + JQUERY_SCRIPT_LOCATION + ' included on page' + state.pageUrl);
-                        resolve();
-
+                        return RSVP.Promise.resolve();
+                    }
+                    // error
+                    , function(err) {
+                        logger.error('error including JQuery ', state.pageUrl);
+                        return RSVP.Promise.reject(err);  
                     });
-                } else {
+        } else {
 
-                    logger.info('jquery already included on the webpage ', state.pageUrl);
-                    resolve();
-                }
-                
-            });
-        });
+            logger.info('jquery already included on the webpage ', state.pageUrl);
+            return RSVP.Promise.resolve();
+        }
     }
 });
 
