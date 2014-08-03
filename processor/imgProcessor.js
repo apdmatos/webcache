@@ -1,25 +1,21 @@
-
-// Processor dependencies
 var baseProcessor   = require('./elementDownloaderProcessor')   ,
     urlMod          = require('url')                            ,
     util            = require('util')                           ,
-    utils           = require('./../util')                      ;
-
-
+    utils           = require('./../util')                      ,
+    logger          = require('./../logger')                    ;
 
 /**
  * @constructor
  * Downloads all the images on the page and stores them on a local 
  * @param  {[Processor]} nextProcessor
  * @param  {[Store]} store
- * @param  {RegexPosProcessor} regexProcessor
+ * @param  {[WebAssetsClient]} webAssetsClient
  */
-function imgProcessor(nextProcessor, store) {
+function imgProcessor(nextProcessor, store, webAssetsClient) {
     // call base constructor
-    baseProcessor.apply(this, [nextProcessor, store]);
+    baseProcessor.apply(this, [nextProcessor, store, webAssetsClient, null, true]);
 
 }
-
 
 util.inherits(imgProcessor, baseProcessor);
 utils.extend(imgProcessor.prototype, {
@@ -27,17 +23,15 @@ utils.extend(imgProcessor.prototype, {
     /**
      * Process the document content
      * @param  {[String]}           url
-     * @param  {[Engine]}           engine
      * @param  {[PantomPage]}       page
      * @param  {[ProcessorData]}    state
-     * @param  {Function}           done
-     * @return {[ProcessorData]} if the state parameter is null, creates a new one
+     * @return {Promise[ProcessorData]}
      */
-    process: function(url, engine, page, state, done) {
+    process: function(page, state) {
+        logger.info('img processor for url ', state.pageUrl);
 
-        console.log('img processor...');
         state = baseProcessor.prototype.process.apply(this, arguments);
-        this.processElement(url, engine, page, state, 'img', 'src', done);
+        return this.processElement(url, engine, page, state, 'img', 'src', done);
     },
 
     /**
@@ -61,10 +55,10 @@ utils.extend(imgProcessor.prototype, {
      * @param  {String|Stream}  data      downloaded from the internet
      * @param  {ProcessorData}  state     the state to save the file
      * @param  {UrlStruct[]}    urlStruct containing the file name and the file path
-     * @param  {Function}       doneFunc  Function to be executed
+     * @returns {Promise}
      */    
-    saveFile: function(data, state, urlStruct, doneFunc) { 
-        this.store.saveImage(data, state.storedata, urlStruct.name, doneFunc);
+    saveFile: function(data, state, urlStruct) {
+        return this.store.saveImage(data, state.storedata, urlStruct.name);
     },
 
     /**
@@ -77,7 +71,7 @@ utils.extend(imgProcessor.prototype, {
         return url.indexOf(".jpg") != -1 
                 || url.indexOf(".png") != -1
                 || url.indexOf(".jpeg") != -1
-                || url.indexOf(".gif") != -1;;
+                || url.indexOf(".gif") != -1;
     },
 
     /**
@@ -89,17 +83,8 @@ utils.extend(imgProcessor.prototype, {
      */    
     getPosProcessorsData: function(state, baseUrl, engine) { 
         return null;
-    }    
-
-
+    }
 });
-
-
-
 
 // exports the processor
 module.exports = imgProcessor;
-
-
-
-

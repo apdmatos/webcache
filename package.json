@@ -8,7 +8,8 @@
     "winston": "0.x.x",
     "rsvp": "3.x.x",
     "mkpath": "0.1.x",
-    "underscore": "1.6.x"
+    "underscore": "1.6.x",
+    "elucidata-type": "1.1.x"
   },
   "devDependencies": {
     "mocha": "1.18.x",

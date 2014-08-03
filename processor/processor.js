@@ -47,16 +47,15 @@ utils.extend(processor.prototype, {
 
     /**
      * Begins the next processor execution
-     * @param  {[String]}           url
      * @param  {[PantomPage]}       page
      * @param  {[ProcessorData]}    state
      * @returns {Promise[ProcessorData]}
      */
-    next: function(url, page, state) {
+    next: function(page, state) {
 
         if(this.nextProcessor) {
             logger.info('calling next processor');
-            return this.nextProcessor.process(url, page, state);
+            return this.nextProcessor.process(page, state);
         }
         
         logger.info('there is no next processor. Just returning...');

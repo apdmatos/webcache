@@ -1,3 +1,4 @@
+var type = require('elucidata-type');
 
 /**
  * Utility functions to be used on the code
@@ -10,10 +11,23 @@ module.exports = {
      * @param  {Error} err    
      */
     printError: function(logger, err) {
+
+        function print(error) {
+            logger.error(error);
+            if(error.stack) {
+                logger.error(error.stack);    
+            }
+        }
+
         if(err) {
-            logger.error(err);
-            if(err.stack) {
-                logger.error(err.stack);    
+            if(type.isArray(err)) {
+
+                for (var i = 0; i < err.length; ++i) {
+                    print(err[i]);
+                }
+
+            } else {
+                print(err);
             }
         }
     },

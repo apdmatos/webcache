@@ -151,8 +151,8 @@ phantomJsProcessPool.prototype = {
                                 completePromise.resolve();
                             })
                             .catch(function(error) {
-                                logger.error('executor completed with error for url ' + url, error);
-                                if(error.stack) logger.error(error.stack);
+                                logger.error('executor completed with error for url ' + url + ' error: ' + error);
+                                utils.printError(logger, error)
                                 completePromise.reject(error);
                             })
                             .finally(function() {

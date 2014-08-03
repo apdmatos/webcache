@@ -160,7 +160,8 @@ var privateFuncs = {
             self.getDirectoryPath(config, storedata, function(err, dirPath) {
 
                 if(err) {
-                    reject(err);
+                    logger.error('error getting directory path ' + err);
+                    return reject(err);
                 }
 
                 // save image file
@@ -170,14 +171,16 @@ var privateFuncs = {
                 // create a containing folder, if necessary (/css, /images and /js)
                 self.createDirectoryIfNotExists(containingDir, function(err) {
                     if(err) {
-                        reject(err);
+                        logger.error('error creating directory ' + containingDir + ' ... Error: ' + err);
+                        return reject(err);
                     }
 
                     var filePath = path.join(containingDir, fileName);
                     logger.info('storing file in ' + filePath);
                     fs.writeFile(filePath, data, format, function(err) {
                         if(err) {
-                            reject(err);
+                            logger.error('error writing file to fs... Error: ' + err);
+                            return reject(err);
                         }
 
                         logger.info('stored file ', filePath);

@@ -56,9 +56,9 @@ utils.extend(parallelExecutor.prototype, {
             .then(function(results) {
 
                 var rejected = _.where(results, { state: 'rejected' });
-                if(rejected) {
-                    var mappedErros = _.map(rejected, function(num, key){ return rejected[num]; });
-                    return RSVP.Promise.reject(mappedErros, 'one or more processors failed processing');
+                if(rejected.length > 0) {
+                    var mappedErros = _.map(rejected, function(num, key){ return rejected[key].reason; });
+                    return RSVP.Promise.reject(mappedErros);
                 }
 
                 return self.next(page, state);

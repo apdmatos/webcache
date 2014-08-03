@@ -43,7 +43,7 @@ utils.extend(loadScriptProcessor.prototype, {
         return page.evaluate(self._jqueryEvaluatorFunc)
             .then(
                 function(jquery) {
-                    return self._includeJQueryDecisor(page, jquery);
+                    return self._includeJQueryDecisor(page, state, jquery);
                 }
                 // error
                 , function(err) {
@@ -56,7 +56,7 @@ utils.extend(loadScriptProcessor.prototype, {
         return JQuery;
     },
 
-    _includeJQueryDecisor: function(page, jquery) {
+    _includeJQueryDecisor: function(page, state, jquery) {
         
         if(!jquery) {
 

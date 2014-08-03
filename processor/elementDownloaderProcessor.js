@@ -1,6 +1,3 @@
-
-
-// Processor dependencies
 var baseProcessor       = require('./processor')                                    ,
     posProcessorData    = require('./posProcessors/data/posProcessorData')          ,
     urlMod              = require('url')                                            ,
@@ -8,6 +5,7 @@ var baseProcessor       = require('./processor')                                
     utils               = require('./../util')                                      ,
     phantomFunc         = require('../node-phantom-extensions/parameterFunction')   ,
     RSVP                = require('rsvp')                                           ,
+    _                   = require('underscore')                                     ,
     logger              = require('../logger')                                      ;
 
 /**
@@ -15,14 +13,18 @@ var baseProcessor       = require('./processor')                                
  * Abstract class to download page assets (such as: img, css, script, ...)
  * @param  {[Processor]} nextProcessor
  * @param  {[Store]} store
+ * @param  {[WebAssetsClient]} webAssetsClient
  * @param  {PosProcessor} regexProcessor
+ * @param  {bool} continueWhenErrors
  */
-function elementDownloaderProcessor(nextProcessor, store, posProcessor) {
+function elementDownloaderProcessor(nextProcessor, store, webAssetsClient, posProcessor, continueWhenErrors) {
     // call base constructor
     baseProcessor.apply(this, [nextProcessor, store]);
-    this.posProcessor = posProcessor;
-}
 
+    this.webAssetsClient = webAssetsClient;
+    this.posProcessor = posProcessor;
+    this.continueWhenErrors = continueWhenErrors;
+}
 
 util.inherits(elementDownloaderProcessor, baseProcessor);
 utils.extend(elementDownloaderProcessor.prototype, {
@@ -41,43 +43,26 @@ utils.extend(elementDownloaderProcessor.prototype, {
         var self = this;
         var relPath = this.getRelativePath();
 
-        return new RSVP.Promise(function(resolve, reject) {
-            page.evaluate(
-                phantomFunc(processPageElementsOnBrowser, [elemName, elemUrlAttr, relPath]),
-                function(err, res) {
+        page.evaluate(
+            phantomFunc(processPageElementsOnBrowser, [elemName, elemUrlAttr, relPath])
+        )
+        .then(
+            function(res) {
+                var elems = res && res.length ? res.length : 0;
+                logger.info('processed ' + elems + ' results for page ' + state.pageUrl);
 
-                    var elems = res && res.length ? res.length : 0;
-                    logger.info('processed ' + elems + ' results for page ' + state.pageUrl);
-
-                    if(err) {
-
-                        logger.error('error finding ' + elemName + ' on page ' + state.pageUrl + ' error: ' + err);
-                        return reject(err);
-                    }
-                    else {
-                        
-                        if(res && res.length > 0) {
-
-                            self.downloadFiles(res, state)
-                                .then(function() {
-                                    resolve();
-                                }).catch(function(err) {
-                                    logger.error('error downloading ' + elemName + 'elements for page ' + state.pageUrl);
-                                    reject(err);
-                                });
-
-                        } else {
-
-                            // in case of an error call the next baseProcessor
-                            self.next(url, engine)
-                                .then(function() {
-                                    resolve(state);
-                                }).catch(function(err) {
-                                    reject(err);
-                                });
-                        }
-                    }
-                });
+                if(res && res.length > 0) {
+                    logger.info('donwloading ' + res.length + ' assets');
+                    return self.downloadFiles(res, state);
+                }
+            }
+            // error
+            , function(err) {
+                logger.error('error finding ' + elemName + ' on page ' + state.pageUrl + ' error: ' + err);
+                return RSVP.Promise.reject(err);
+            })
+        .then(function() {
+            return self.next(page, state)
         });
     },
 
@@ -91,60 +76,60 @@ utils.extend(elementDownloaderProcessor.prototype, {
      */
     downloadFiles: function(urls, state) {
 
+        var self = this;
+        var promises = [];
 
-        var waitFn = utils.waitForCallbacks(done, this);
         for (var i = 0, len = urls.length; i < len; ++i) {
-            var fn = waitFn();
+
             var struct = urls[i];
-            this.downloadAsset(baseUrl, struct, engine, state, fn);
+            var promise = this.downloadAsset(state.pageUrl, struct, engine, state, fn);
+
+            promises.push(promise);
         }
+
+        return RSVP.allSettled(promises)
+            .then(function(result) {
+
+                if(!self.continueWhenErrors) {
+
+                    // check for erros downloading any asset...
+                    var rejected = _.where(results, { state: 'rejected' });
+                    if(rejected.length > 0) {
+                        var mappedErros = _.map(rejected, function(num, key){ return rejected[key].reason; });
+                        return RSVP.Promise.reject(mappedErros);
+                    }
+                }
+
+                return RSVP.Promise.resolve();
+            });
     },
 
     /**
      * private method to download a specific asset file
      * @param  {String}         baseUrl
-     * @param  {UrlStruct[]}    urlStruct
-     * @param  {Engine}         engine
-     * @param  {ProcessorData}  state
-     * @param  {Function}       downloaCompletedFunc
+     * @param  {UrlStruct}      urlStruct
+     * returns {Promise}
      */
-    downloadAsset: function(baseUrl, urlStruct, engine, state, downloaCompletedFunc) { 
+    downloadAsset: function(baseUrl, urlStruct) { 
         var self = this;
-        engine.getAssetFile(baseUrl, urlStruct.url, self.getEncoding(),
-            function(data) { // success callback
-
+        return self.webAssetsClient.getAssetFile(baseUrl, urlStruct.url, self.getEncoding())
+            .then(function(data) {
                 // run pre processors
                 if(self.posProcessor) {
                     
                     var absoluteUrl = urlMod.resolve(baseUrl, urlStruct.url);
-                    var posProcessorData = self.getPosProcessorsData(state, absoluteUrl, engine);
+                    var posProcessorData = self.getPosProcessorsData(state);
 
                     // run pre processor
-                    self.posProcessor.process(data, posProcessorData, function(fileData) {
-                        // save file to disk
-                        self.saveFile(fileData, state, urlStruct, function(err) {
-                            if(err) {
-                                console.log('error writing the file ' + urlStruct.name + ' with error ' + err);
-                            }
-                            downloaCompletedFunc(err, urlStruct.url);   
-                        })
-                    });
-
-                }else {
-                    // save file to disk
-                    self.saveFile(data, state, urlStruct, function(err) {
-                        if(err) {
-                            console.log('error writing the file ' + urlStruct.name + ' with error ' + err);
-                        }
-                        downloaCompletedFunc(err, urlStruct.url);   
-                    });
+                    return self.posProcessor.process(data, posProcessorData);
                 }
-            }, 
-            function(error) {
-                // error callback
-                downloaCompletedFunc(error, urlStruct.url);    
-            }
-        );
+
+                return data;
+            })
+            .then(function(fileData) {
+                // save file to disk
+                return self.saveFile(fileData, state, urlStruct);
+            });
     },
 
     /**
@@ -163,10 +148,10 @@ utils.extend(elementDownloaderProcessor.prototype, {
      * Abstract method that should be defined by each specific class
      * @param  {String|Stream}  data      downloaded from the internet
      * @param  {ProcessorData}  state     the state to save the file
-     * @param  {UrlStruct[]}    urlStruct containing the file name and the file path
-     * @param  {Function}       doneFunc  Function to be executed
-     */
-    saveFile: function(data, state, urlStruct, doneFunc) { /* must be defined on a subclass */ },
+     * @param  {UrlStruct}    urlStruct containing the file name and the file path
+     * @returns {Promise}
+     */    
+    saveFile: function(data, state, urlStruct) { /* must be defined on a subclass */ },
 
     /**
      * Checks if this processor can process the given URL path
@@ -179,16 +164,11 @@ utils.extend(elementDownloaderProcessor.prototype, {
     /**
      * Hook method to return posProcessor data
      * @param  {ProcessorData} state   
-     * @param  {String} baseUrl 
-     * @param  {Engine} engine  
+     * @param  {String} baseUrl
      * @return {PosProcessorData}  The pos processor data to call posProcessor
      */
-    getPosProcessorsData: function(state, baseUrl, engine) { /* must be defined on a subclass */ }
+    getPosProcessorsData: function(state) { /* must be defined on a subclass */ }
 });
-
-
-
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // This code is sent to the browser...
@@ -268,14 +248,5 @@ function processPageElementsOnBrowser(elementName, elemUrlAttr, localPath) {
     }();
 }
 
-
 // exports the baseProcessor
 module.exports = elementDownloaderProcessor;
-
-
-
-
-
-
-
-

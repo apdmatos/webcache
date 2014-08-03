@@ -38,6 +38,8 @@ utils.extend(previewProcessor.prototype, {
             .then(
                 // success
                 function(imagedata) {
+                    logger.info('rendered page image' + state.pageUrl + ' to base64. Saving...');
+                    var buffer = new Buffer(imagedata, 'base64');
                     return self.store.saveWebsitePreview(buffer, state.storedata)
                 },
                 // error
@@ -49,34 +51,6 @@ utils.extend(previewProcessor.prototype, {
             .then(function() {
                 return self.next(page, state);
             });
-
-        // return new RSVP.Promise(function(resolve, reject) {
-        //     logger.info('rendering page url ', state.pageUrl, ' base64');
-
-        //     page.renderBase64('png',function(err, imagedata){
-        //         if(err) {
-        //             logger.error('error while rendering page ' + state.pageUrl + ' image to base64. Error: ', err);
-        //             reject(err);
-        //             return;
-        //         }
-
-        //         console.info('rendered page image' + state.pageUrl + ' to base64. Saving...');
-        //         var buffer = new Buffer(imagedata, 'base64');
-                
-        //         // save image on the store                
-        //         self.store.saveWebsitePreview(buffer, state.storedata)
-        //             .then(function() {
-        //                 return self.next(page, state);
-        //             })
-        //             .then(function() {
-        //                 resolve(state);
-        //             })
-        //             .catch(function(error) {
-        //                 reject(error);
-        //             });
-                
-        //     });
-        // });
     }
 });
 
