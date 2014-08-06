@@ -43,7 +43,7 @@ utils.extend(elementDownloaderProcessor.prototype, {
         var self = this;
         var relPath = this.getRelativePath();
 
-        page.evaluate(
+        return page.evaluate(
             phantomFunc(processPageElementsOnBrowser, [elemName, elemUrlAttr, relPath])
         )
         .then(
@@ -68,11 +68,8 @@ utils.extend(elementDownloaderProcessor.prototype, {
 
     /**
      * private method to download files and store them locally
-     * @param  {String}         baseUrl 
-     * @param  {UrlStruct[]}    urls    
-     * @param  {Engine}         engine  
+     * @param  {UrlStruct[]}    urls
      * @param  {ProcessorData}  state
-     * @param  {Function}       done
      */
     downloadFiles: function(urls, state) {
 
@@ -82,21 +79,23 @@ utils.extend(elementDownloaderProcessor.prototype, {
         for (var i = 0, len = urls.length; i < len; ++i) {
 
             var struct = urls[i];
-            var promise = this.downloadAsset(state.pageUrl, struct, engine, state, fn);
+            var promise = this.downloadAsset(state, struct);
 
             promises.push(promise);
         }
 
         return RSVP.allSettled(promises)
-            .then(function(result) {
+            .then(function(results) {
+                
+                // check for erros downloading any asset...
+                var rejected = _.where(results, { state: 'rejected' });
+                if(rejected.length > 0) {
+                    var mappedErros = _.map(rejected, function(num, key){ return rejected[key].reason; });
 
-                if(!self.continueWhenErrors) {
-
-                    // check for erros downloading any asset...
-                    var rejected = _.where(results, { state: 'rejected' });
-                    if(rejected.length > 0) {
-                        var mappedErros = _.map(rejected, function(num, key){ return rejected[key].reason; });
+                    if(!self.continueWhenErrors) {
                         return RSVP.Promise.reject(mappedErros);
+                    } else {
+                        utils.printError(logger, mappedErros);
                     }
                 }
 
@@ -106,18 +105,18 @@ utils.extend(elementDownloaderProcessor.prototype, {
 
     /**
      * private method to download a specific asset file
-     * @param  {String}         baseUrl
+     * @param  {ProcessorData}  state
      * @param  {UrlStruct}      urlStruct
      * returns {Promise}
      */
-    downloadAsset: function(baseUrl, urlStruct) { 
+    downloadAsset: function(state, urlStruct) { 
         var self = this;
-        return self.webAssetsClient.getAssetFile(baseUrl, urlStruct.url, self.getEncoding())
+        return self.webAssetsClient.getAssetFile(state.pageUrl, urlStruct.url, self.getEncoding())
             .then(function(data) {
                 // run pre processors
                 if(self.posProcessor) {
                     
-                    var absoluteUrl = urlMod.resolve(baseUrl, urlStruct.url);
+                    var absoluteUrl = urlMod.resolve(state.pageUrl, urlStruct.url);
                     var posProcessorData = self.getPosProcessorsData(state);
 
                     // run pre processor

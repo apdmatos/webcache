@@ -60,7 +60,7 @@ filestore.prototype = {
      * @returns {Promise}
      */
     saveImage: function(buffer, storedata, filename) {
-        logger.info('saving image with name ', fileName, storedata.toString());
+        logger.info('saving image with name ', filename, storedata.toString());
         return privateFuncs.saveFile(
             this.config, 
             storedata, 
@@ -133,10 +133,7 @@ filestore.prototype = {
     getJSRelativePath: function() {
         return this.config.jsFiles;
     }
-
 };
-
-
 
 /**
  * Object that holds the private method which should not be exposed on the public interface.

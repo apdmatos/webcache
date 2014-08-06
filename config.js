@@ -1,6 +1,4 @@
 
-
-
 var config = {
 
     /**
@@ -57,8 +55,14 @@ var config = {
         // {
         //     parallel: ['img', 'css', 'js', 'absoluteurl']  
         // },
-        //'downloader'
-        'preview'
+        //'downloader',
+        { 
+            parallel: ['loadscript', 'preview']
+        },
+        'css'
+        // {
+        //     parallel: ['img', 'css', 'js', 'absoluteurl']
+        // }
     ],
 
     /**
@@ -105,8 +109,6 @@ var config = {
     }
 
 };
-
-
 
 if(module && module.exports)
     module.exports = config;

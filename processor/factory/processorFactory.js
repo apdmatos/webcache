@@ -7,7 +7,7 @@ var loadScriptProcessor     = require('../loadScriptProcessor')                ,
     htmlCrawlProcessor      = require('../htmlCrawlProcessor')                 ,
     htmlDownloaderProcessor = require('../htmlDownloaderProcessor')            ,
     parallelProcessor       = require('../orchestration/parallelExecuter')     ,
-    regexPosProcessor       = require('../posProcessors/regexPosProcessor') ,
+    regexPosProcessor       = require('../posProcessors/regexPosProcessor')    ,
     utils                   = require('../../util')                            ;
 
 
@@ -35,6 +35,9 @@ var getProcessorNameAndParameters = function(processorItem) {
         parameters: processorItem[key]
     }
 }
+
+
+var webClient = null;
 
 /**
  * The factory methods to create the processors
@@ -74,7 +77,7 @@ var factories = {
      * @return {Processor}
      */
     img: function(next, store, state) {
-        return new imgProcessor(next, store);
+        return new imgProcessor(next, store, webClient);
     },
 
     /**
@@ -159,7 +162,9 @@ var factories = {
  * @param  {Store}              store     to save pages into
  * @return {Processor}       A processor
  */
-module.exports = function(processorStructure, store) {
+module.exports = function(processorStructure, store, webAssetsClient) {
+
+    webClient = webAssetsClient;
 
     var processorElement,
         factoryFunc,

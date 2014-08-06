@@ -30,8 +30,8 @@ utils.extend(imgProcessor.prototype, {
     process: function(page, state) {
         logger.info('img processor for url ', state.pageUrl);
 
-        state = baseProcessor.prototype.process.apply(this, arguments);
-        return this.processElement(url, engine, page, state, 'img', 'src', done);
+        baseProcessor.prototype.process.apply(this, arguments);
+        return this.processElement(page, state, 'img', 'src');
     },
 
     /**

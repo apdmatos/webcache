@@ -26,11 +26,24 @@ for (var i = 2, len = process.argv.length; i < len; ++i) {
     urls.push(process.argv[i]);
 };
 
+// urls = [
+//     'http://www.abola.pt/',
+//     'http://www.sapo.pt/',
+//     'http://www.record.xl.pt/',
+//     'http://news.ycombinator.com/',
+//     'https://www.google.pt/',
+//     'http://linkedin.com/',
+//     'http://www.ebay.co.uk/',
+//     'https://www.amazon.co.uk/',
+//     'https://github.com/apdmatos',
+//     'http://dioguinho.pt/'
+// ];
+
 logger.info('wiring dependencies...');
 
 var store       = new store(config)                                         ,
     request     = new webAssetsClient(config.httpRequests.timeout)          ,
-    processor   = factory(config.defaultProcessorConfig, store)             ,
+    processor   = factory(config.defaultProcessorConfig, store, request)    ,
     phantomPool = new phantomPool(
                       config.phantomJSProcessPool.maxSize
                     , config.phantomJSProcessPool.maxRetries

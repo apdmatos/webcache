@@ -1,27 +1,20 @@
-
-
-// Processor dependencies
 var baseProcessor           = require('./elementDownloaderProcessor')                                   ,
     urlMod                  = require('url')                                                            ,
     util                    = require('util')                                                           ,
     utils                   = require('./../util')                                                      ,
     path                    = require('path')                                                           ,
-    regexPosProcessorData   = require('./posProcessors/data/posProcessorData').regexPosProcessorData    ;
-
-
+    regexPosProcessorData   = require('./posProcessors/data/posProcessorData').regexPosProcessorData    ,
+    logger                  = require('./../logger')                                                    ;
 
 /**
  * @constructor
  * Abstract class to download assets
  * @param  {RegexPosProcessor} regexProcessor
  */
-function cssProcessor(nextProcessor, store, regexProcessor) {
+function cssProcessor(nextProcessor, store, regexProcessor, webAssetsClient) {
     // call base constructor
-    
-    baseProcessor.apply(this, [nextProcessor, store, regexProcessor]);
-
+    baseProcessor.apply(this, [nextProcessor, store, regexProcessor, webAssetsClient]);
 }
-
 
 util.inherits(cssProcessor, baseProcessor);
 utils.extend(cssProcessor.prototype, {
@@ -29,17 +22,15 @@ utils.extend(cssProcessor.prototype, {
     /**
      * Process the document content
      * @param  {[String]}           url
-     * @param  {[Engine]}           engine
      * @param  {[PantomPage]}       page
      * @param  {[ProcessorData]}    state
-     * @param  {Function}           done
-     * @return {[ProcessorData]} if the state parameter is null, creates a new one
+     * @return {Promise[ProcessorData]}
      */
-    process: function(url, engine, page, state, done) {
+    process: function(page, state) {
 
         console.log('css processor...');
-        state = baseProcessor.prototype.process.apply(this, arguments);
-        this.processElement(url, engine, page, state, 'link', 'href', done);
+        baseProcessor.prototype.process.apply(this, arguments);
+        return this.processElement(page, state, 'link', 'href');
     },
 
     /**
@@ -63,10 +54,10 @@ utils.extend(cssProcessor.prototype, {
      * @param  {String|Stream}  data      downloaded from the internet
      * @param  {ProcessorData}  state     the state to save the file
      * @param  {UrlStruct[]}    urlStruct containing the file name and the file path
-     * @param  {Function}       doneFunc  Function to be executed
-     */
-    saveFile: function(data, state, urlStruct, doneFunc) { 
-        this.store.saveCss(data, state.storedata, urlStruct.name, doneFunc);
+     * @returns {Promise}
+     */    
+    saveFile: function(data, state, urlStruct) {
+        return this.store.saveCss(data, state.storedata, urlStruct.name);
     },
 
     /**
@@ -96,14 +87,5 @@ utils.extend(cssProcessor.prototype, {
     }
 });
 
-
-
-
 // exports the processor
 module.exports = cssProcessor;
-
-
-
-
-
-
