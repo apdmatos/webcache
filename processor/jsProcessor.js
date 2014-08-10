@@ -1,11 +1,8 @@
-
-// Processor dependencies
 var baseProcessor   = require('./elementDownloaderProcessor')   ,
     urlMod          = require('url')                            ,
     util            = require('util')                           ,
-    utils           = require('./../util')                      ;
-
-
+    utils           = require('./../util')                      ,
+    logger          = require('../logger')                      ;
 
 /**
  * @constructor
@@ -31,7 +28,7 @@ utils.extend(jsProcessor.prototype, {
      */
     process: function(page, state) {
 
-        console.log('js processor...');
+        logger.info('js processor...');
         baseProcessor.prototype.process.apply(this, arguments);
         return this.processElement(page, state, 'script', 'src');
     },
@@ -77,18 +74,13 @@ utils.extend(jsProcessor.prototype, {
      * Hook method to return posProcessor data
      * @param  {ProcessorData} state   
      * @param  {String} baseUrl 
-     * @param  {Engine} engine  
      * @return {PosProcessorData}  The pos processor data to call posProcessor
      */
-    getPosProcessorsData: function(state, baseUrl, engine) { 
+    getPosProcessorsData: function(state, baseUrl) { 
         // TODO: must be implemented...
         return null;
-    }    
-
+    }
 });
-
-
-
 
 // exports the processor
 module.exports = jsProcessor;

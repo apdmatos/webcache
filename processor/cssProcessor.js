@@ -28,7 +28,7 @@ utils.extend(cssProcessor.prototype, {
      */
     process: function(page, state) {
 
-        console.log('css processor...');
+        logger.info('css processor...');
         baseProcessor.prototype.process.apply(this, arguments);
         return this.processElement(page, state, 'link', 'href');
     },

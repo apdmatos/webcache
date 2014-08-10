@@ -4,7 +4,7 @@ var basePosProcessor = require('./regexPosProcessor')    ,
     RSVP             = require('rsvp')                   ,
     logger           = require('../../logger')           ;
 
-var cssRegex = /url\s*\('?"?([^)]+\.(png|jpg|gif)(\?[a-z0-9]*)?)'?"?\)/g;
+var cssRegex = /url\s*\('?"?([^)]+\.(png|jpg|gif)(\?[a-z0-9-]*)?)'?"?\)/g;
 
 /**
  * Constructor to regexPosProcessor
@@ -92,7 +92,6 @@ utils.extend(cssRegexPosProcessor.prototype, {
             .then(function(result) {
                 return file;
             });
-
     }
 });
 

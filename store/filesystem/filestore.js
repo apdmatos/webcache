@@ -40,7 +40,7 @@ filestore.prototype = {
      * @param  {StoreData}   storedata The state for store
      * @returns {Promise}
      */
-    saveHtmlPage: function(html, storedata, done) {
+    saveHtmlPage: function(html, storedata) {
         logger.info('saving html page.', storedata.toString());
         return privateFuncs.saveFile(
             this.config, 
@@ -105,8 +105,7 @@ filestore.prototype = {
             this.getJSRelativePath(), 
             filename, 
             buffer, 
-            'utf8',
-            done
+            'utf8'
         );
     },
 
@@ -214,6 +213,13 @@ var privateFuncs = {
                 //fs.mkdir(dir, function(){ done(true); });
                 mkpath(dir, 0777, function (err) {
                     if (err) {
+
+                        if(err.code == 'EEXIST') {
+                            // already created
+                            done(null, dir);
+                            return;
+                        }
+
                         logger.error("error creating directory structure. ", dir);
                         done(err)
                     } else {
