@@ -7,7 +7,7 @@ var baseProcessor   = require('./processor')                                    
     _               = require('underscore')                                     ;
 
 var toAbsolutePathElements = [
-    'a', 'img', 'script', 'link', 'embed'
+    'a', /*'img', 'script', 'link', */'embed'
 ];
 
 /**
