@@ -1,6 +1,5 @@
 var baseProcessor       = require('./processor')                                    ,
     posProcessorData    = require('./posProcessors/data/posProcessorData')          ,
-    urlMod              = require('url')                                            ,
     util                = require('util')                                           ,
     utils               = require('./../util')                                      ,
     phantomFunc         = require('../node-phantom-extensions/parameterFunction')   ,
@@ -116,7 +115,6 @@ utils.extend(elementDownloaderProcessor.prototype, {
                 // run pre processors
                 if(self.posProcessor) {
                     
-                    var absoluteUrl = urlMod.resolve(state.pageUrl, urlStruct.url);
                     var posProcessorData = self.getPosProcessorsData(state);
 
                     // run pre processor

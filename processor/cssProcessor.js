@@ -13,7 +13,7 @@ var baseProcessor           = require('./elementDownloaderProcessor')           
  */
 function cssProcessor(nextProcessor, store, regexProcessor, webAssetsClient) {
     // call base constructor
-    baseProcessor.apply(this, [nextProcessor, store, regexProcessor, webAssetsClient]);
+    baseProcessor.apply(this, [nextProcessor, store, webAssetsClient, regexProcessor, true]);
 }
 
 util.inherits(cssProcessor, baseProcessor);
@@ -74,16 +74,14 @@ utils.extend(cssProcessor.prototype, {
      * Hook method to return posProcessor data
      * @param  {ProcessorData} state   
      * @param  {String} baseUrl 
-     * @param  {Engine} engine  
      * @return {PosProcessorData}  The pos processor data to call posProcessor
      */
-    getPosProcessorsData: function(state, baseUrl, engine) { 
+    getPosProcessorsData: function(state, baseUrl) { 
         var cssPath = this.store.getCSSRelativePath();
         var imgPath = this.store.getImagesRelativePath();
         var cssImagesRelPath = path.relative(cssPath, imgPath);
 
-        var regexps = state.websiteconfig.config.download.regex.stylesheets;
-        return new regexPosProcessorData(this, state, baseUrl, cssImagesRelPath, engine, regexps);
+        return new regexPosProcessorData(this, state, baseUrl, cssImagesRelPath);
     }
 });
 

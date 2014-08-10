@@ -7,7 +7,7 @@ var loadScriptProcessor     = require('../loadScriptProcessor')                ,
     htmlCrawlProcessor      = require('../htmlCrawlProcessor')                 ,
     htmlDownloaderProcessor = require('../htmlDownloaderProcessor')            ,
     parallelProcessor       = require('../orchestration/parallelExecuter')     ,
-    regexPosProcessor       = require('../posProcessors/regexPosProcessor')    ,
+    cssRegexPosProcessor    = require('../posProcessors/cssRegexPosProcessor') ,
     utils                   = require('../../util')                            ;
 
 
@@ -87,12 +87,12 @@ var factories = {
      * @return {Processor}
      */
     css: function(next, store, state) {
-        var posProcessor = new regexPosProcessor([
-            new imgProcessor(null, store),
-            new cssProcessor(null, store),
-            new jsProcessor (null, store)
+        var posProcessor = new cssRegexPosProcessor([
+            new imgProcessor(null, store, webClient),
+            new cssProcessor(null, store, webClient),
+            new jsProcessor (null, store, webClient)
         ]);
-        return new cssProcessor(next, store, posProcessor);
+        return new cssProcessor(next, store, posProcessor, webClient);
     },
 
     /**
@@ -102,7 +102,7 @@ var factories = {
      * @return {Processor}
      */
     js: function(next, store, state) {
-        return new jsProcessor(next, store);
+        return new jsProcessor(next, store, webClient);
     },
 
     /**

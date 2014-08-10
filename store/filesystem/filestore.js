@@ -79,7 +79,7 @@ filestore.prototype = {
      * @returns {Promise}
      */
     saveCss: function(buffer, storedata, filename) {
-        logger.info('saving css file ', fileName, storedata.toString());
+        logger.info('saving css file ', filename, storedata.toString());
         return privateFuncs.saveFile(
             this.config, 
             storedata, 
@@ -98,7 +98,7 @@ filestore.prototype = {
      * @returns {Promise}
      */
     saveJs: function(buffer, storedata, filename) {
-        logger.info('saving js file ', fileName, storedata.toString());
+        logger.info('saving js file ', filename, storedata.toString());
         return privateFuncs.saveFile(
             this.config, 
             storedata, 
@@ -197,7 +197,7 @@ var privateFuncs = {
      */
     getDirectoryPath: function(config, storedata, done) {
         if(storedata.created) {
-            done(storedata.location);
+            done(null, storedata.location);
         }
 
         this.createDirectoryIfNotExists(storedata.location, function(err) {

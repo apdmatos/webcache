@@ -1,5 +1,3 @@
-
-
 /**
  * Constructor for the posProcessor type
  * @param  {[type]} processor
@@ -12,15 +10,13 @@ posProcessor.prototype = {
      * Process data file
      * @param  {String}   file
      * @param  {RegexPosProcessorData}   posProcessorData
-     * @param  {Function} done - to be called when done
-     * @return {void}
+     * @return {Promise}
      */
-    process: function(file, posProcessorData, done) {
+    process: function(file, posProcessorData) {
         /* Must be implemented by each specific class */
     }
 
 };
-
 
 /**
  * Exports the posProcessor base class

@@ -1,8 +1,7 @@
 var basePosProcessor = require('./posProcessor')    ,
     util             = require('util')              ,
-    utils            = require('./../../util')      ;
-
-
+    utils            = require('./../../util')      ,
+    RSVP             = require('rsvp')              ;
 
 /**
  * Constructor to regexPosProcessor
@@ -17,77 +16,45 @@ utils.extend(regexPosProcessor.prototype, {
 
     /**
      * Process data file
-     * @param  {String}   file
-     * @param  {RegexPosProcessorData}   posProcessorData
-     * @param  {Function(file)} done - to be called when done
-     * @return {void}
+     * @param  {String} file
+     * @param  {Function} regexApplier
+     * @param  {Regexp[]} regexps
+     * @param  {RegexPosProcessorData} posProcessorData
+     * @return {Promise}
      */
-    process: function(file, posProcessorData, done) {
+    processFile: function(file, regexps, posProcessorData) {
 
-        //this._processRegexIdx(0, file, posProcessorData, done);
-        
-        var self             = this;
-        var state            = posProcessorData.processorState;
-        var regexps          = posProcessorData.regexps;
-        var waitFn           = utils.waitForCallbacks(function() { done(file); }, this);
-        var waitForProcessor = false;
+        var self = this;
 
-        // {url, urlStruct}
-        var processedUrls = {};
-
-        function applyRegex(match, p1, p2, p3, offset, string) {
-            var url = p1;
-            var processor = self._getProcessorToDownload(url, state);
-            if(!processor) 
-            {
-                // leave it as it is! Do nothing...
-                return match;
-            } 
-
-
-            var localUrl;
-            if(processedUrls[url]) {
+        return new RSVP.Promise(function(resolve, reject){
+            
+            function execute(idx) {
                 
-                localUrl = processedUrls[url].localUrl;
+                if(regexps.length == idx) {
+                    return resolve(file);
+                }
 
-            }else {
-
-                waitForProcessor = true;
-                var fn = waitFn();
-                
-                var name = self.generateName(url);
-                localUrl = posProcessorData.relPath + '/' + name;
-
-                processedUrls[url] = {
-                    url: url, 
-                    localUrl: localUrl,
-                    name: name
-                };
-
-                processor.downloadAsset(
-                    posProcessorData.baseUrl, 
-                    processedUrls[url],
-                    posProcessorData.engine, 
-                    state, 
-                    fn
-                );
+                var regex = regexps[idx];
+                self.replace(file, regex, posProcessorData)
+                    .then(function(replacedFile) {
+                        file = replacedFile;
+                        execute(idx + 1);
+                    });
             }
 
-            
-            return match.replace(url, localUrl);
-        }
+            execute(0);
+        });
+    },
 
-        var regex;
-        for(var i = 0, len = regexps.length; i < len; ++i) {
-            regex = regexps[i];
-            file = file.replace(regex, applyRegex, "gi");
-        }    
-        
-        
-        if(!waitForProcessor) {
-            done(file);
-        }
-        
+    /**
+     * [replace description]
+     * @param  {String} file
+     * @param  {Regexp} regexps
+     * @param  {RegexPosProcessorData} posProcessorData
+     * @return {Promise(string)}
+     */
+    replace: function(file, regex, posProcessorData) {
+        /* must be implemented by each implementation*/
     },
 
     /**
@@ -125,7 +92,6 @@ utils.extend(regexPosProcessor.prototype, {
         return null;
     }
 });
-
 
 /**
  * Exports regexPosProcessor type

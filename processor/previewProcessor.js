@@ -45,7 +45,7 @@ utils.extend(previewProcessor.prototype, {
                 // error
                 function(err) {
                     logger.error('error while rendering page ' + state.pageUrl + ' image to base64. Error: ', err);
-                    reject(err);
+                    RSVP.Promise.reject(err);
                 }
             )
             .then(function() {
