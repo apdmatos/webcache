@@ -1,5 +1,3 @@
-
-// Processor dependencies
 var baseProcessor   = require('./processor')                                    ,
     util            = require('util')                                           ,
     utils           = require('./../util')                                      ,
@@ -8,12 +6,9 @@ var baseProcessor   = require('./processor')                                    
     logger          = require('../logger')                                      ,
     _               = require('underscore')                                     ;
 
-
-
 var toAbsolutePathElements = [
     'a', 'img', 'script', 'link', 'embed'
 ];
-
 
 /**
  * Converts all the links on the page to an absolute URL
@@ -26,9 +21,7 @@ function absoluteUriProcessor(nextProcessor, store) {
 
 }
 
-
 util.inherits(absoluteUriProcessor, baseProcessor);
-
 utils.extend(absoluteUriProcessor.prototype, {
 
     /**
@@ -44,21 +37,16 @@ utils.extend(absoluteUriProcessor.prototype, {
         var self = this;
         baseProcessor.prototype.process.apply(this, arguments);
 
-        function processElement (element) {
-            return new RSVP.Promise(function(resolve, reject) {
-                page.evaluate(
-                    phantomFunc(processTagElements, [url, tag]),
-                    function(err, res) {
-                        if(err || !res) {
-                            logger.error('error querying for element ' + tag + 'for page ' + state.pageUrl + 'error: ' + err);
-                            return reject(err);
-                        }
-                        else {
-                            logger.info('tag: ' + res.tag + ' length: ' + res.length);
-                            resolve();
-                        }
-                    });
-            });
+        function processElement (tag) {
+
+            return page.evaluate( phantomFunc(processTagElements, [state.pageUrl, tag]) )
+                .then(function(res) {
+                    if(res) {
+                        logger.info('tag: ' + res.tag + ' length: ' + res.length);
+                    } else {
+                        logger.warn('tag: ' + tag + ' return a null result');
+                    }
+                });
         }
 
         var promises = [];
@@ -68,23 +56,23 @@ utils.extend(absoluteUriProcessor.prototype, {
             promises.push(promise);
         }
 
-
         return RSVP.allSettled(promises)
             .then(function(results) {
 
                 var rejected = _.where(results, { state: 'rejected' });
-                if(rejected) {
-                    var mappedErros = _.map(rejected, function(num, key){ return rejected[num]; });
-                    return RSVP.Promise.reject(mappedErros, 'one or more processors failed processing');
+                if(rejected.length > 0) {
+
+                    logger.error('toAbsolute url completed with errors...')
+
+                    var mappedErros = _.map(rejected, function(num, key){ return rejected[key].reason; });
+                    return RSVP.Promise.reject(mappedErros);
                 }
 
+                logger.info('toAbsolute url processor completed successfully');
                 return self.next(page, state);
             });
     }
 });
-
-
-
 
 
 // All the function definition MUST stay together. 
@@ -113,7 +101,7 @@ var processTagElements = function (url, tag) {
 
             url = base_url + url;
             var i=0
-            while(/\/\.\.\//.test(url = url.replace(/[^\/]+\/+\.\.\//g,"")));
+            //while(/\/\.\.\//.test(url = url.replace(/[^\/]+\/+\.\.\//g,"")));
 
             /* Escape certain characters to prevent XSS */
             url = url.replace(/\.$/,"").replace(/\/\./g,"").replace(/"/g,"%22")
@@ -124,11 +112,14 @@ var processTagElements = function (url, tag) {
         var toAbsolutePath = {
             replaceUrl: function(url, elem, attrName) {
                 var relUrl = elem.attr(attrName);
-                var absoluteUrl = rel_to_abs(relUrl);
 
-                console.log('adding url: ' + absoluteUrl);
-
-                elem.attr(attrName, absoluteUrl);
+                // we will only do the replacement if the script tag contains 
+                // the scr attribute
+                if(relUrl) {
+                    var absoluteUrl = rel_to_abs(relUrl);
+                    console.log('adding url: ' + absoluteUrl);
+                    elem.attr(attrName, absoluteUrl);
+                }
             },
 
             a: function(url, elem) {
@@ -173,9 +164,5 @@ var processTagElements = function (url, tag) {
     }()
 }
 
-
-
 // exports the processor
 module.exports = absoluteUriProcessor;
-
-

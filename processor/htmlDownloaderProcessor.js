@@ -1,10 +1,8 @@
-
-// processor dependencies
 var utils           = require('./../util')      ,
     baseProcessor   = require('./processor')    ,
     util            = require('util')           ,
-    utils           = require('./../util')      ;
-
+    utils           = require('./../util')      ,
+    logger          = require('../logger')      ;
 
 /**
  * Gets all the HTML and stores it.
@@ -22,31 +20,24 @@ utils.extend(htmlDownloaderProcessor.prototype, {
 
     /**
      * Process the document content
-     * @param  {[String]}           url
-     * @param  {[Engine]}           engine
      * @param  {[PantomPage]}       page
      * @param  {[ProcessorData]}    state
-     * @param  {Function}           done
-     * @return {[ProcessorData]} if the state parameter is null, creates a new one
+     * @return {Promise[ProcessorData]}
      */
-    process: function(url, engine, page, state, done) {
+    process: function(page, state) {
 
-        console.log('html downloader processor...');
+        logger.info('html downloader processor...');
+        baseProcessor.prototype.process.apply(this, arguments);
 
         var self = this;
-        // base.process
-        state = baseProcessor.prototype.process.apply(this, arguments);
-
-
-        var callback = utils.callbackWrapper(this.next, this, [url, engine, page, state, done]);
-        page.evaluate(function () {
+        
+        return page.evaluate(function () {
             return document.getElementsByTagName('html')[0].innerHTML;
-        }, function(err, html){
-            console.log('saving html...');
-            self.store.saveHtmlPage(html, state.storedata, callback);
+        }).then(function(html) {
+            
+            logger.info('saving html for ' + state.pageUrl);
+            return self.store.saveHtmlPage(html, state.storedata);
         });
-
-        return state;
     }
 });
 

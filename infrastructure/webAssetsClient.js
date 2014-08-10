@@ -74,7 +74,7 @@ function requestAssetTimeout(url, format, timeout) {
         }
 
         req.on('error', function(e) {
-            logger.error('ERROR getting asset file ', e);
+            logger.error('ERROR getting asset file ' + url, e);
             reject(e);
         });
 

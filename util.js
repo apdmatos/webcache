@@ -75,6 +75,27 @@ module.exports = {
     },
 
     /**
+     * Callbacks a function only once
+     * @param  {Function} callback   [description]
+     * @param  {Object}   context    [description]
+     * @param  {Object[]}   params   [description]
+     * @return {Function}            [description]
+     */
+    callbackOnce: function(callback, context, params) {
+        var alreadyExecuted = false;
+        return function() {
+            if(!callback || alreadyExecuted) {
+                return;
+            }
+
+            alreadyExecuted = true;
+            params = params || [];
+            params = params.concat([].slice.call(arguments));
+            return callback.apply(context, params);
+        }
+    },
+
+    /**
      * Extends an object with the other object properties
      * @return {Object}
      */

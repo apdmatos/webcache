@@ -197,6 +197,7 @@ var privateFuncs = {
     getDirectoryPath: function(config, storedata, done) {
         if(storedata.created) {
             done(null, storedata.location);
+            return;
         }
 
         this.createDirectoryIfNotExists(storedata.location, function(err) {
@@ -207,9 +208,11 @@ var privateFuncs = {
 
     createDirectoryIfNotExists: function(dir, done) {
         
+        var done = utils.callbackOnce(done, this);
         fs.exists(dir, function(exists){
             if(!exists) {
 
+                logger.info('creating directory structure ' + dir);
                 //fs.mkdir(dir, function(){ done(true); });
                 mkpath(dir, 0777, function (err) {
                     if (err) {

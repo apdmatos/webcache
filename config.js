@@ -49,20 +49,13 @@ var config = {
      * @type {Object}
      */
     defaultProcessorConfig: [
-        // { 
-        //     parallel: ['loadscript', 'preview']
-        // },
-        // {
-        //     parallel: ['img', 'css', 'js', 'absoluteurl']  
-        // },
-        //'downloader',
         { 
             parallel: ['loadscript', 'preview']
         },
-        'css'
-        // {
-        //     parallel: ['img', 'css', 'js', 'absoluteurl']
-        // }
+        {
+            parallel: ['img', 'css', 'js', 'absoluteurl']
+        },
+        'downloader'
     ],
 
     /**
